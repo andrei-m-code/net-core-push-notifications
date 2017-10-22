@@ -20,7 +20,7 @@ using (var gcm = new GCMSender(apiKey, senderId))
 }
 ```
 
-The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Please see the docs on what you can send https://developers.google.com/cloud-messaging/http-server-ref#send-downstream.
+The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Please see the docs on what you can send https://developers.google.com/cloud-messaging/http-server-ref#send-downstream. Please note, we are setting the "to" property, so you don't have to do it yourself.
 
 # Apple Push Notifications
 
