@@ -2,10 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <Description>.NET Core C# Push Notifications to Android via Google GCM and Apple Push Notifications.</Description>
+    <Description>.NET Core C# Push Notifications for Android Google GCM and Apple Push Notifications.</Description>
     <Authors>Andrei Mikhalevich</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
