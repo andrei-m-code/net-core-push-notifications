@@ -33,4 +33,5 @@ using (var apn = new APNSender(GatewayType.Sandbox, "mycert.p12", "password", tr
 }
 ```
 
+Please see Apple notification format examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
 Tip: To send properties like {"content-available": true} you can use Newtonsoft.Json attributes over C# properties like [JsonProperty("content-available")].
