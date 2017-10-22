@@ -7,7 +7,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using CorePush.Utils;
 
 namespace CorePush.Apple
 {
@@ -41,7 +41,7 @@ namespace CorePush.Apple
 
         public async Task SendAsync(string deviceId, object payload)
         {
-            var payloadString = JsonConvert.SerializeObject(payload);
+            var payloadString = JsonHelper.Serialize(payload);
             var payloadBytes = Encoding.UTF8.GetBytes(payloadString);
 
             await ConnectAsync();
