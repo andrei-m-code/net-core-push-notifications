@@ -1,5 +1,5 @@
 # CorePush
-.NET Core Push Notifications to Android and iOS
+.NET Core Push Notifications for Android (GCM) and iOS.
 
 # Installation
 
