@@ -7,17 +7,16 @@ using CorePush.Interfaces;
 
 namespace CorePush.Google
 {
-    [Obsolete("Google GCM will be shutting down next Spring 2019. Consider migrating to Firebase with FCMSender")]
-    public class GCMSender : INotificationSender, IDisposable
+    public class FCMSender : INotificationSender, IDisposable
     {
-        private const string gcmUrl = "https://android.googleapis.com/gcm/send";
-        private readonly string apiKey;
+        private readonly string fcmUrl = "https://fcm.googleapis.com/fcm/send";
+        private readonly string serverKey;
         private readonly string senderId;
         private readonly Lazy<HttpClient> lazyHttp = new Lazy<HttpClient>();
 
-        public GCMSender(string apiKey, string senderId)
+        public FCMSender(string serverKey, string senderId)
         {
-            this.apiKey = apiKey;
+            this.serverKey = serverKey;
             this.senderId = senderId;
         }
 
@@ -28,10 +27,10 @@ namespace CorePush.Google
             jsonObject.Add("to", JToken.FromObject(deviceId));
             var json = jsonObject.ToString();
 
-            using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, gcmUrl))
+            using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, fcmUrl))
             {
-                httpRequest.Headers.Add("Authorization", $"key = {apiKey}");
-                httpRequest.Headers.Add("Sender", senderId);
+                httpRequest.Headers.Add("Authorization", $"key = {serverKey}");
+                httpRequest.Headers.Add("Sender", $"id = {senderId}");
                 httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 using (var response = await lazyHttp.Value.SendAsync(httpRequest))

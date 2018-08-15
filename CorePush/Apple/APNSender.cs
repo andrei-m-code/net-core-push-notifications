@@ -7,11 +7,12 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using CorePush.Interfaces;
 using CorePush.Utils;
 
 namespace CorePush.Apple
 {
-    public class APNSender : IDisposable
+    public class APNSender : INotificationSender
     {
         private const int port = 2195;
         private const string hostnameSandbox = "gateway.sandbox.push.apple.com";
@@ -21,11 +22,6 @@ namespace CorePush.Apple
         private readonly byte[] certificateBytes;
         private readonly string certificatePassword;
         private readonly bool validateCertificate;
-
-        private TcpClient tcp;
-        private X509Certificate2 certificate;
-        private SslStream sslStream;
-        private BinaryWriter binaryWriter;
 
         public APNSender(GatewayType gatewayType, string certificatePath, string certificatePassword, bool validateCertificate) : this(gatewayType, File.ReadAllBytes(certificatePath), certificatePassword, validateCertificate)
         {
@@ -43,33 +39,31 @@ namespace CorePush.Apple
         {
             var payloadString = JsonHelper.Serialize(payload);
             var payloadBytes = Encoding.UTF8.GetBytes(payloadString);
+            var hostname = GetHostname();
 
-            await ConnectAsync();
-
-            binaryWriter.Write((byte)0);
-            binaryWriter.Write((byte)0);
-            binaryWriter.Write((byte)32);
-            binaryWriter.Write(HexStringToByteArray(deviceId.ToUpper()));
-            binaryWriter.Write((byte)0);
-            binaryWriter.Write((byte)payloadString.Length);
-            binaryWriter.Write(payloadBytes);
-            binaryWriter.Flush();
-            sslStream.Flush();
-        }
-
-        private async Task ConnectAsync()
-        {
-            if (binaryWriter == null)
+            using (var tcp = new TcpClient(AddressFamily.InterNetwork))
             {
-                var hostname = GetHostname();
-                tcp = new TcpClient(AddressFamily.InterNetwork);
                 await tcp.ConnectAsync(hostname, port);
-                var removeCertificateValidation = validateCertificate ? new RemoteCertificateValidationCallback(ValidateServerCertificate) : null;
-                sslStream = new SslStream(tcp.GetStream(), false, removeCertificateValidation, null);
-                certificate = new X509Certificate2(certificateBytes, certificatePassword);
-                var certificatesCollection = new X509Certificate2Collection(certificate);
-                await sslStream.AuthenticateAsClientAsync(hostname, certificatesCollection, SslProtocols.Tls, false);
-                binaryWriter = new BinaryWriter(sslStream);
+                var remoteCertificateValidation = validateCertificate ? new RemoteCertificateValidationCallback(ValidateServerCertificate) : null;
+                using (var sslStream = new SslStream(tcp.GetStream(), false, remoteCertificateValidation, null))
+                using (var certificate = new X509Certificate2(certificateBytes, certificatePassword))
+                {
+
+                    var certificatesCollection = new X509Certificate2Collection(certificate);
+                    await sslStream.AuthenticateAsClientAsync(hostname, certificatesCollection, SslProtocols.Tls, false);
+                    using (var binaryWriter = new BinaryWriter(sslStream))
+                    {
+                        binaryWriter.Write((byte)0);
+                        binaryWriter.Write((byte)0);
+                        binaryWriter.Write((byte)32);
+                        binaryWriter.Write(HexStringToByteArray(deviceId.ToUpper()));
+                        binaryWriter.Write((byte)0);
+                        binaryWriter.Write((byte)payloadBytes.Length);
+                        binaryWriter.Write(payloadBytes);
+                        binaryWriter.Flush();
+                        sslStream.Flush();
+                    }
+                }
             }
         }
 
@@ -98,14 +92,6 @@ namespace CorePush.Apple
             }
 
             throw new APNCertificateException(sslPolicyErrors);
-        }
-
-        public void Dispose()
-        {
-            tcp?.Dispose();
-            sslStream?.Dispose();
-            certificate?.Dispose();
-            binaryWriter?.Dispose();
         }
     }
 }

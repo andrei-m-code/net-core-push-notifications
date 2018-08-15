@@ -1,18 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <Description>.NET Core C# Push Notifications for Android Google GCM and Apple Push Notifications.</Description>
+    <Description>.NET Core C# Push Notifications for Android Google GCM, Apple and Firebase notifications.</Description>
     <Authors>Andrei Mikhalevich</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Version>1.1.0</Version>
+    <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
+    <PackageLicenseUrl />
+    <PackageReleaseNotes>- Added an interface INotificationSender to make it easier to test.
+- Firebase cloud messaging added. 
+- GCM is now obsolete.</PackageReleaseNotes>
+    <PackageTags>push-notifications apn gcm fcm firebase android-push-notifications ios-push-notifications</PackageTags>
+    <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
 </Project>
