@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/andrei-m-code/CorePush.svg?branch=master)](https://travis-ci.org/andrei-m-code/CorePush)
+
 # CorePush
 .NET Core Push Notifications for Android (GCM) and iOS.
 
