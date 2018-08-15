@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/andrei-m-code/CorePush.svg?branch=master)](https://travis-ci.org/andrei-m-code/CorePush)
+[![NuGet](https://img.shields.io/nuget/v/Nuget.Core.svg)](https://www.nuget.org/packages/CorePush/)
+
 
 # CorePush
 .NET Core Push Notifications for Android (GCM) and iOS.
