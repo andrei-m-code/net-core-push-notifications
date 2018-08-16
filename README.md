@@ -21,7 +21,7 @@ using (var fcm = new FCMSender(serverKey, senderId))
     await fcm.SendAsync(deviceToken, notification);
 }
 ```
-If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/client.
+If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
 
 # Android GCM Notifications (will be shut down in spring 2019 - use Firebase instead)
 
@@ -47,3 +47,39 @@ await apn.SendAsync(deviceToken, notification);
 
 Please see Apple notification format examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
 Tip: To send properties like {"content-available": true} you can use Newtonsoft.Json attributes over C# properties like [JsonProperty("content-available")].
+
+# Notification payload formats
+You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS and Android:
+
+```
+    public class GoogleNotification
+    {
+        public class DataPayload
+        {
+            // Add your custom properties as needed
+
+            [JsonProperty("message")]
+            public string Message { get; set; }
+        }
+
+        [JsonProperty("priority")]
+        public string Priority { get; set; } = "high";
+
+        [JsonProperty("data")]
+        public DataPayload Data { get; set; }
+    }
+
+    public class AppleNotification
+    {
+        public class ApsPayload
+        {
+            [JsonProperty("alert")]
+            public string AlertBody { get; set; }
+        }
+
+        // Your custom properties as needed
+
+        [JsonProperty("aps")]
+        public ApsPayload Aps { get; set; }
+    }
+```
