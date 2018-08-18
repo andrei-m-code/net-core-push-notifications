@@ -83,3 +83,6 @@ You can find expected notification formats for different types of notifications 
         public ApsPayload Aps { get; set; }
     }
 ```
+# Please contribute
+This is a very simple library that only supports basic functionality. So contributions are very welcome!
+
