@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/andrei-m-code/CorePush.svg?branch=master)](https://travis-ci.org/andrei-m-code/CorePush) [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
 
-# CorePush
+# CorePush - .NET Core Android, iOS and Firebase push notifications
 .NET Core Push Notifications for Android (GCM), Firebase and iOS.
 
 # Installation
