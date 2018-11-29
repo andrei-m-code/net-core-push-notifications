@@ -39,7 +39,9 @@ using (var apn = new ApnSender(p8privateKey, p8privateKeyId, teamId, appBundleId
     await apn.SendAsync(deviceToken, notification);
 }
 ```
-IMPORTANT: Initialize 1 ApnSender per bundle, send messages and don't forget to dispose your object. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests. 
+**IMPORTANT 1**: Initialize 1 ApnSender per bundle, send messages and don't forget to dispose your object. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
+**IMPORTANT 2**: APN sender uses WinHttpHandler to send HTTP/2 requests which makes it usable only on Windows OS unfortunately. Once there is a cross-platform version or HttpClient will support HTTP/2, it will be migrated.
+
 Please see Apple notification format examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
 Tip: To send properties like {"content-available": true} you can use Newtonsoft.Json attributes over C# properties like [JsonProperty("content-available")].
 
