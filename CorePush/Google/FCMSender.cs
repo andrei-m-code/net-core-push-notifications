@@ -3,23 +3,34 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using CorePush.Interfaces;
 
 namespace CorePush.Google
 {
-    public class FCMSender : INotificationSender, IDisposable
+    /// <summary>
+    /// Firebase message sender
+    /// </summary>
+    public class FcmSender : IDisposable
     {
         private readonly string fcmUrl = "https://fcm.googleapis.com/fcm/send";
         private readonly string serverKey;
         private readonly string senderId;
         private readonly Lazy<HttpClient> lazyHttp = new Lazy<HttpClient>();
 
-        public FCMSender(string serverKey, string senderId)
+        public FcmSender(string serverKey, string senderId)
         {
             this.serverKey = serverKey;
             this.senderId = senderId;
         }
 
+        /// <summary>
+        /// Send firebase notification.
+        /// Please check out payload formats:
+        /// https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
+        /// The SendAsync method will add/replace "to" value with deviceId
+        /// </summary>
+        /// <param name="deviceId">Device token</param>
+        /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
+        /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
         public async Task SendAsync(string deviceId, object payload)
         {
             var jsonObject = JObject.FromObject(payload);
@@ -35,10 +46,7 @@ namespace CorePush.Google
 
                 using (var response = await lazyHttp.Value.SendAsync(httpRequest))
                 {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new Exception($"HTTP {response.StatusCode}, {response.ReasonPhrase}");
-                    }
+                    response.EnsureSuccessStatusCode();
                 }
             };
         }

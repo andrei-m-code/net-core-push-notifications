@@ -1,8 +1,8 @@
 ﻿namespace CorePush.Apple
 {
-    public enum GatewayType
+    public enum ApnServerType
     {
-        Sandbox,
+        Development,
         Production
     }
 }

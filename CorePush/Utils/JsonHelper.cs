@@ -5,7 +5,7 @@ namespace CorePush.Utils
 {
     public static class JsonHelper
     {
-        private static JsonSerializerSettings settings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings settings = new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };

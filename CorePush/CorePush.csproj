@@ -1,26 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <Description>.NET Core C# Push Notifications for Android Google GCM, Apple and Firebase notifications.</Description>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>.NET Core C# Push Notifications for Android Google Firebase Messaging (FCM) and Apple push notifications (APN).</Description>
     <Authors>Andrei Mikhalevich</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Version>1.1.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <PackageLicenseUrl />
-    <PackageReleaseNotes>- Added an interface INotificationSender to make it easier to test.
-- Firebase cloud messaging added. 
-- GCM is now obsolete.</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      - Target framework changed to netstandard2.0
+      - ApnSender now uses publisher profile instead of certificates
+      - ApnSender uses WinHttpHandler for HTTP/2 requests and thus can only be used on Windows unfortunately. Once there is a cross-plat option, it will be updated.
+      - Firebase cloud messaging now is the only option to send Android push notifications
+      - GCM is gone
+    </PackageReleaseNotes>
     <PackageTags>push-notifications apn gcm fcm firebase android-push-notifications ios-push-notifications</PackageTags>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="4.5.1" />
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />
   </ItemGroup>
 
 </Project>
