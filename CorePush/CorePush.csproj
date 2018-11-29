@@ -18,7 +18,7 @@
       - Firebase cloud messaging now is the only option to send Android push notifications
       - GCM is gone
     </PackageReleaseNotes>
-    <PackageTags>push-notifications apn gcm fcm firebase android-push-notifications ios-push-notifications</PackageTags>
+    <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
