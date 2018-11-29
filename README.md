@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/andrei-m-code/CorePush.svg?branch=master)](https://travis-ci.org/andrei-m-code/CorePush) [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
 
-# CorePush - .NET Core Android, iOS and Firebase push notifications
+# CorePush - .NET Core Android Firebase (FCM) and Apple iOS HTTP/2 Push notifications (APN)
 .NET Core Push Notifications for Android (GCM), Firebase and iOS.
 
 ## Installation
@@ -36,10 +36,13 @@ To send notifications to Apple devices you have to create a publisher profile an
 ```
 using (var apn = new ApnSender(p8privateKey, p8privateKeyId, teamId, appBundleIdentifier, server)) 
 {
-	await apn.SendAsync(deviceToken, notification);
+    await apn.SendAsync(deviceToken, notification);
 }
 ```
-IMPORTANT: Initialize 1 ApnSender per bundle, send messages and don't forget to dispose your object. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests. 
+**IMPORTANT 1**: Initialize 1 ApnSender per bundle, send messages and don't forget to dispose your object. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
+
+**IMPORTANT 2**: APN sender uses WinHttpHandler to send HTTP/2 requests which makes it usable only on Windows OS unfortunately. Once there is a cross-platform version or HttpClient will support HTTP/2, it will be migrated.
+
 Please see Apple notification format examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
 Tip: To send properties like {"content-available": true} you can use Newtonsoft.Json attributes over C# properties like [JsonProperty("content-available")].
 
@@ -47,36 +50,35 @@ Tip: To send properties like {"content-available": true} you can use Newtonsoft.
 You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS and Android:
 
 ```
-    public class GoogleNotification
+public class GoogleNotification
+{
+    public class DataPayload
     {
-        public class DataPayload
-        {
-            // Add your custom properties as needed
-
-            [JsonProperty("message")]
-            public string Message { get; set; }
-        }
-
-        [JsonProperty("priority")]
-        public string Priority { get; set; } = "high";
-
-        [JsonProperty("data")]
-        public DataPayload Data { get; set; }
+        // Add your custom properties as needed
+         [JsonProperty("message")]
+        public string Message { get; set; }
     }
 
-    public class AppleNotification
+    [JsonProperty("priority")]
+    public string Priority { get; set; } = "high";
+
+    [JsonProperty("data")]
+    public DataPayload Data { get; set; }
+}
+
+public class AppleNotification
+{
+    public class ApsPayload
     {
-        public class ApsPayload
-        {
-            [JsonProperty("alert")]
-            public string AlertBody { get; set; }
-        }
-
-        // Your custom properties as needed
-
-        [JsonProperty("aps")]
-        public ApsPayload Aps { get; set; }
+        [JsonProperty("alert")]
+        public string AlertBody { get; set; }
     }
+
+    // Your custom properties as needed
+
+    [JsonProperty("aps")]
+    public ApsPayload Aps { get; set; }
+}
 ```
 ## Please contribute
 This is a very simple library that only supports basic functionality. So contributions are very very welcome!
