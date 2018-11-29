@@ -36,7 +36,7 @@ To send notifications to Apple devices you have to create a publisher profile an
 ```
 using (var apn = new ApnSender(p8privateKey, p8privateKeyId, teamId, appBundleIdentifier, server)) 
 {
-	await apn.SendAsync(deviceToken, notification);
+    await apn.SendAsync(deviceToken, notification);
 }
 ```
 IMPORTANT: Initialize 1 ApnSender per bundle, send messages and don't forget to dispose your object. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests. 
@@ -47,36 +47,35 @@ Tip: To send properties like {"content-available": true} you can use Newtonsoft.
 You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS and Android:
 
 ```
-    public class GoogleNotification
+public class GoogleNotification
+{
+    public class DataPayload
     {
-        public class DataPayload
-        {
-            // Add your custom properties as needed
-
-            [JsonProperty("message")]
-            public string Message { get; set; }
-        }
-
-        [JsonProperty("priority")]
-        public string Priority { get; set; } = "high";
-
-        [JsonProperty("data")]
-        public DataPayload Data { get; set; }
+        // Add your custom properties as needed
+         [JsonProperty("message")]
+        public string Message { get; set; }
     }
 
-    public class AppleNotification
+    [JsonProperty("priority")]
+    public string Priority { get; set; } = "high";
+
+    [JsonProperty("data")]
+    public DataPayload Data { get; set; }
+}
+
+public class AppleNotification
+{
+    public class ApsPayload
     {
-        public class ApsPayload
-        {
-            [JsonProperty("alert")]
-            public string AlertBody { get; set; }
-        }
-
-        // Your custom properties as needed
-
-        [JsonProperty("aps")]
-        public ApsPayload Aps { get; set; }
+        [JsonProperty("alert")]
+        public string AlertBody { get; set; }
     }
+
+    // Your custom properties as needed
+
+    [JsonProperty("aps")]
+    public ApsPayload Aps { get; set; }
+}
 ```
 ## Please contribute
 This is a very simple library that only supports basic functionality. So contributions are very very welcome!
