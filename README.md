@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/andrei-m-code/CorePush.svg?branch=master)](https://travis-ci.org/andrei-m-code/CorePush) [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
 
-# CorePush - .NET Core Android Firebase (FCM) and Apple iOS HTTP/2 Push notifications (APN)
-.NET Core Push Notifications for Android Firebase (FCM) and iOS (APN).
+# CorePush - .NET Core Android Firebase (FCM) and Apple iOS JWT HTTP/2 Push notifications (APN)
+Simple .NET Core library for sending Push Notifications for Android Firebase (FCM) and iOS (APN) with JWT HTTP/2 API.
 
 ## Installation
 
@@ -26,7 +26,7 @@ The library serializes notification object to JSON using Newtonsoft.Json library
 
 ## Apple Push Notifications
 
-To send notifications to Apple devices you have to create a publisher profile and pass necessary parameters to ApnSender constructor.:
+To send notifications to Apple devices you have to create a publisher profile and pass necessary parameters to ApnSender constructor. Apn Sender will create and sign JWT token and attach it to every request to Apple servers:
 1. p8privateKey - p8 certificate generated in itunes. Just 1 line string without spaces, ----- or line breaks.
 2. privateKeyId - 10 digit p8 certificate id. Usually a part of a downloadable certificate filename e.g. AuthKey_IDOFYOURCR.p8</param>
 3. teamId - Apple 10 digit team id from itunes
