@@ -2,7 +2,7 @@
 
 
 # CorePush - .NET Core Android Firebase (FCM) and Apple iOS HTTP/2 Push notifications (APN)
-.NET Core Push Notifications for Android (GCM), Firebase and iOS.
+.NET Core Push Notifications for Android Firebase (FCM) and iOS (APN).
 
 ## Installation
 
