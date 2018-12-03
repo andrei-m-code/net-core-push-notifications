@@ -55,7 +55,7 @@ public class GoogleNotification
     public class DataPayload
     {
         // Add your custom properties as needed
-         [JsonProperty("message")]
+        [JsonProperty("message")]
         public string Message { get; set; }
     }
 
