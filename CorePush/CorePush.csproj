@@ -6,17 +6,17 @@
     <Authors>Andrei M</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
-    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <FileVersion>2.0.1.0</FileVersion>
+    <Version>2.0.1</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <PackageLicenseUrl />
     <PackageReleaseNotes>
-      - Target framework changed to netstandard2.0
-      - ApnSender now uses publisher profile instead of certificates
-      - ApnSender uses WinHttpHandler for HTTP/2 requests and thus can only be used on Windows unfortunately. Once there is a cross-plat option, it will be updated.
-      - Firebase cloud messaging now is the only option to send Android push notifications
-      - GCM is gone
+- Target framework changed to netstandard2.0
+- ApnSender now uses publisher profile instead of certificates
+- ApnSender uses WinHttpHandler for HTTP/2 requests and thus can only be used on Windows unfortunately. Once there is a cross-plat option, it will be updated.
+- Firebase cloud messaging now is the only option to send Android push notifications
+- GCM is gone
     </PackageReleaseNotes>
     <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
@@ -24,9 +24,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="4.5.1" />
-    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="4.6.0" />
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.6.0" />
   </ItemGroup>
 
 </Project>
