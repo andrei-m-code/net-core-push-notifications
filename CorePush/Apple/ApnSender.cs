@@ -63,7 +63,8 @@ namespace CorePush.Apple
             string deviceToken,
             string apnsId = null,
             int apnsExpiration = 0,
-            int apnsPriority = 10)
+            int apnsPriority = 10,
+            bool isBackground = false)
         {
             var path = $"/3/device/{deviceToken}";
             var json = JsonHelper.Serialize(notification);
@@ -79,6 +80,7 @@ namespace CorePush.Apple
             request.Headers.Add("apns-topic", appBundleIdentifier);
             request.Headers.Add("apns-expiration", apnsExpiration.ToString());
             request.Headers.Add("apns-priority", apnsPriority.ToString());
+            request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // for iOS 13 required
             if (!string.IsNullOrWhiteSpace(apnsId))
             {
                 request.Headers.Add(apnidHeader, apnsId);
