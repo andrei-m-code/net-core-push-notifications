@@ -15,7 +15,7 @@ Install-Package CorePush
 
 For Firebase messages we will need project Server Key and Sender ID. If you are moving away from GCM, sender ID will stay the same and GCM subscribers will still be able to receive notifications sent through Firebase. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
 
-```
+```csharp
 using (var fcm = new FcmSender(serverKey, senderId))
 {
     await fcm.SendAsync(deviceToken, notification);
@@ -33,7 +33,7 @@ To send notifications to Apple devices you have to create a publisher profile an
 4. appBundleIdentifier - App slug / bundle name e.g.com.myawesomecompany.helloworld
 5. server - Development or Production APN server
 
-```
+```csharp
 using (var apn = new ApnSender(p8privateKey, p8privateKeyId, teamId, appBundleIdentifier, server)) 
 {
     await apn.SendAsync(deviceToken, notification);
@@ -49,7 +49,7 @@ Tip: To send properties like {"content-available": true} you can use Newtonsoft.
 ## Examples of notification payloads
 You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS and Android:
 
-```
+```csharp
 public class GoogleNotification
 {
     public class DataPayload
