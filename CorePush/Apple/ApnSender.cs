@@ -1,6 +1,7 @@
 ﻿using CorePush.Utils;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -58,7 +59,7 @@ namespace CorePush.Apple
         /// to receive too many requests and may ocasionally respond with HTTP 429. Just try/catch this call and retry as needed.
         /// </summary>
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
-        public async Task SendAsync(
+        public async Task<ApnsResponse> SendAsync(
             object notification,
             string deviceToken,
             string apnsId = null,
@@ -88,10 +89,19 @@ namespace CorePush.Apple
 
             using (var response = await http.Value.SendAsync(request))
             {
-                response.EnsureSuccessStatusCode();
+                var succeed = response.IsSuccessStatusCode;
+                var content = await response.Content.ReadAsStringAsync();
+                var error = JsonHelper.Deserialize<ApnsError>(content);
+
+                return new ApnsResponse
+                {
+                    IsSuccess = succeed,
+                    Error = error
+                };
             }
         }
 
+        
         public void Dispose()
         {
             if (http.IsValueCreated)
@@ -123,5 +133,10 @@ namespace CorePush.Apple
             var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
             return Convert.ToInt32(span.TotalSeconds);
         }
+
+
     }
+
+    
+
 }
