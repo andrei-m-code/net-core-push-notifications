@@ -80,6 +80,8 @@ public class AppleNotification
     public ApsPayload Aps { get; set; }
 }
 ```
+Use `[JsonProperty("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
+
 ## Please contribute
 This is a very simple library that only supports basic functionality. So contributions are very very welcome!
 
