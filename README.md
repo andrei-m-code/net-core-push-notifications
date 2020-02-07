@@ -8,9 +8,16 @@ Simple .NET Core library for sending Push Notifications for Android Firebase (FC
 
 The easiest way would be to use nuget package https://www.nuget.org/packages/CorePush.
 
+Package Manager Console:
 ```
 Install-Package CorePush
 ```
+
+dotnet cli:
+```
+dotnet add package CorePush --version 2.0.2
+```
+
 ## Firebase Notifications (Android and iOS)
 
 For Firebase messages we will need project Server Key and Sender ID. If you are moving away from GCM, sender ID will stay the same and GCM subscribers will still be able to receive notifications sent through Firebase. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
