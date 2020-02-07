@@ -15,7 +15,7 @@ Install-Package CorePush
 
 dotnet cli:
 ```
-dotnet add package CorePush --version 2.0.2
+dotnet add package CorePush
 ```
 
 ## Firebase Notifications (Android and iOS)
