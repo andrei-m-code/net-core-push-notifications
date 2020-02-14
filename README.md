@@ -25,7 +25,7 @@ For Firebase messages we will need project Server Key and Sender ID. If you are 
 ```csharp
 using (var fcm = new FcmSender(serverKey, senderId))
 {
-    await fcm.SendAsync(deviceToken, notification);
+    await fcm.SendAsync(notification, deviceToken);
 }
 ```
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
