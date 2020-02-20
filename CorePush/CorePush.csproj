@@ -6,15 +6,13 @@
     <Authors>Andrei M</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>
-    <FileVersion>2.0.2.0</FileVersion>
-    <Version>2.0.2</Version>
+    <AssemblyVersion>2.0.3.0</AssemblyVersion>
+    <FileVersion>2.0.3.0</FileVersion>
+    <Version>2.0.3</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <PackageLicenseUrl />
     <PackageReleaseNotes>
 - Target framework changed to netstandard2.0
-- Added target framework net47
-- Added target framework net462
 - ApnSender now uses publisher profile instead of certificates
 - ApnSender uses WinHttpHandler for HTTP/2 requests and thus can only be used on Windows unfortunately. Once there is a cross-plat option, it will be updated.
 - Firebase cloud messaging now is the only option to send Android push notifications
@@ -25,18 +23,10 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net462' OR '$(TargetFramework)'=='net47'">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="4.6.0" />
-    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.6.1" />
+    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="4.7.0" />
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

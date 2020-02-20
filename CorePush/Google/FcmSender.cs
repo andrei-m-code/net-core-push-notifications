@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CorePush.Utils;
 using Newtonsoft.Json.Linq;
 
 namespace CorePush.Google
@@ -31,7 +32,7 @@ namespace CorePush.Google
         /// <param name="deviceId">Device token</param>
         /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
-        public async Task SendAsync(string deviceId, object payload)
+        public async Task<FcmResponse> SendAsync(string deviceId, object payload)
         {
             var jsonObject = JObject.FromObject(payload);
             jsonObject.Remove("to");
@@ -47,6 +48,9 @@ namespace CorePush.Google
                 using (var response = await lazyHttp.Value.SendAsync(httpRequest))
                 {
                     response.EnsureSuccessStatusCode();
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    return JsonHelper.Deserialize<FcmResponse>(responseString);
                 }
             };
         }
