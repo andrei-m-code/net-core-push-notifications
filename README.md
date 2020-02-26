@@ -43,7 +43,7 @@ To send notifications to Apple devices you have to create a publisher profile an
 ```csharp
 using (var apn = new ApnSender(p8privateKey, p8privateKeyId, teamId, appBundleIdentifier, server)) 
 {
-    await apn.SendAsync(deviceToken, notification);
+    await apn.SendAsync(notification, deviceToken);
 }
 ```
 **IMPORTANT 1**: Initialize 1 ApnSender per bundle, send messages and don't forget to dispose your object. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
