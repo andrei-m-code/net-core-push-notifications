@@ -28,7 +28,6 @@ namespace CorePush.Apple
         private readonly ApnServerType server;
         private readonly Lazy<string> jwtToken;
         private readonly Lazy<HttpClient> http;
-        private readonly Lazy<WinHttpHandler> handler;
 
         /// <summary>
         /// Initialize sender
@@ -46,8 +45,7 @@ namespace CorePush.Apple
             this.server = server;
             this.appBundleIdentifier = appBundleIdentifier;
             this.jwtToken = new Lazy<string>(() => CreateJwtToken());
-            this.handler = new Lazy<WinHttpHandler>(() => new WinHttpHandler());
-            this.http = new Lazy<HttpClient>(() => new HttpClient(handler.Value));
+            this.http = new Lazy<HttpClient>(() => new HttpClient());
         }
 
         /// <summary>
@@ -86,45 +84,35 @@ namespace CorePush.Apple
                 request.Headers.Add(apnidHeader, apnsId);
             }
 
-            using (var response = await http.Value.SendAsync(request))
-            {
-                var succeed = response.IsSuccessStatusCode;
-                var content = await response.Content.ReadAsStringAsync();
-                var error = JsonHelper.Deserialize<ApnsError>(content);
+            using var response = await http.Value.SendAsync(request);
+            var succeed = response.IsSuccessStatusCode;
+            var content = await response.Content.ReadAsStringAsync();
+            var error = JsonHelper.Deserialize<ApnsError>(content);
 
-                return new ApnsResponse
-                {
-                    IsSuccess = succeed,
-                    Error = error
-                };
-            }
-        }
-
-        
-        public void Dispose()
-        {
-            if (http.IsValueCreated)
+            return new ApnsResponse
             {
-                handler.Value.Dispose();
-                http.Value.Dispose();
-            }
+                IsSuccess = succeed,
+                Error = error
+            };
         }
 
         private string CreateJwtToken()
         {
             var header = JsonHelper.Serialize(new { alg = "ES256", kid = p8privateKeyId });
             var payload = JsonHelper.Serialize(new { iss = teamId, iat = ToEpoch(DateTime.UtcNow) });
+            
+            using var dsa = ECDsa.Create("ECDsaCng");
 
-            var key = CngKey.Import(Convert.FromBase64String(p8privateKey), CngKeyBlobFormat.Pkcs8PrivateBlob);
-            using (var dsa = new ECDsaCng(key))
-            {
-                dsa.HashAlgorithm = CngAlgorithm.Sha256;
-                var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
-                var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
-                var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
-                var signature = dsa.SignData(Encoding.UTF8.GetBytes(unsignedJwtData));
-                return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
-            }
+            var keyBytes = Convert.FromBase64String(p8privateKey);
+            dsa.ImportPkcs8PrivateKey(keyBytes, out _);
+            
+            var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
+            var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
+            var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
+            var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
+            var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
+            
+            return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
 
         private static int ToEpoch(DateTime time)
@@ -133,9 +121,12 @@ namespace CorePush.Apple
             return Convert.ToInt32(span.TotalSeconds);
         }
 
-
+        public void Dispose()
+        {
+            if (http.IsValueCreated)
+            {
+                http.Value.Dispose();
+            }
+        }
     }
-
-    
-
 }
