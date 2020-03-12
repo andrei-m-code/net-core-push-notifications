@@ -20,7 +20,7 @@ dotnet add package CorePush
 
 ## Firebase Notifications (Android and iOS)
 
-For Firebase messages we will need project Server Key and Sender ID. If you are moving away from GCM, sender ID will stay the same and GCM subscribers will still be able to receive notifications sent through Firebase. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
+For Firebase messages we will need project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
 
 ```csharp
 using (var fcm = new FcmSender(serverKey, senderId))
