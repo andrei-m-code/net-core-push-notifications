@@ -7,7 +7,8 @@ namespace CorePush.Utils
     {
         private static readonly JsonSerializerSettings settings = new JsonSerializerSettings
         {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            NullValueHandling = NullValueHandling.Ignore,
         };
 
         public static string Serialize(object obj)
