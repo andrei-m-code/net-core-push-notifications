@@ -1,4 +1,6 @@
 ﻿using CorePush.Utils;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -100,19 +102,16 @@ namespace CorePush.Apple
         {
             var header = JsonHelper.Serialize(new { alg = "ES256", kid = p8privateKeyId });
             var payload = JsonHelper.Serialize(new { iss = teamId, iat = ToEpoch(DateTime.UtcNow) });
-            
-            using var dsa = ECDsa.Create("ECDsaCng");
 
-            var keyBytes = Convert.FromBase64String(p8privateKey);
-            dsa.ImportPkcs8PrivateKey(keyBytes, out _);
-            
             var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
             var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
             var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
-            var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-            
-            return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
+            using (var dsa = GetEllipticCurveAlgorithm(p8privateKey))
+            {
+                var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
+                return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
+            }
         }
 
         private static int ToEpoch(DateTime time)
@@ -127,6 +126,26 @@ namespace CorePush.Apple
             {
                 http.Value.Dispose();
             }
+        }
+
+        // Needed to run on docker linux: ECDsa.Create("ECDsaCng") would generate PlatformNotSupportedException: Windows Cryptography Next Generation (CNG) is not supported on this platform.
+        private static ECDsa GetEllipticCurveAlgorithm(string privateKey)
+        {
+            var keyParams = (ECPrivateKeyParameters)PrivateKeyFactory
+                .CreateKey(Convert.FromBase64String(privateKey));
+
+            var q = keyParams.Parameters.G.Multiply(keyParams.D).Normalize();
+
+            return ECDsa.Create(new ECParameters
+            {
+                Curve = ECCurve.CreateFromValue(keyParams.PublicKeyParamSet.Id),
+                D = keyParams.D.ToByteArrayUnsigned(),
+                Q =
+            {
+                X = q.XCoord.GetEncoded(),
+                Y = q.YCoord.GetEncoded()
+            }
+            });
         }
     }
 }
