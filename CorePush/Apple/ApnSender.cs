@@ -102,16 +102,14 @@ namespace CorePush.Apple
         {
             var header = JsonHelper.Serialize(new { alg = "ES256", kid = p8privateKeyId });
             var payload = JsonHelper.Serialize(new { iss = teamId, iat = ToEpoch(DateTime.UtcNow) });
-
             var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
             var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
             var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
-            using (var dsa = GetEllipticCurveAlgorithm(p8privateKey))
-            {
-                var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-                return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
-            }
+            using var dsa = GetEllipticCurveAlgorithm(p8privateKey);
+            var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
+            
+            return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
 
         private static int ToEpoch(DateTime time)
@@ -131,7 +129,7 @@ namespace CorePush.Apple
         // Needed to run on docker linux: ECDsa.Create("ECDsaCng") would generate PlatformNotSupportedException: Windows Cryptography Next Generation (CNG) is not supported on this platform.
         private static ECDsa GetEllipticCurveAlgorithm(string privateKey)
         {
-            var keyParams = (ECPrivateKeyParameters)PrivateKeyFactory
+            var keyParams = (ECPrivateKeyParameters) PrivateKeyFactory
                 .CreateKey(Convert.FromBase64String(privateKey));
 
             var q = keyParams.Parameters.G.Multiply(keyParams.D).Normalize();
@@ -141,10 +139,10 @@ namespace CorePush.Apple
                 Curve = ECCurve.CreateFromValue(keyParams.PublicKeyParamSet.Id),
                 D = keyParams.D.ToByteArrayUnsigned(),
                 Q =
-            {
-                X = q.XCoord.GetEncoded(),
-                Y = q.YCoord.GetEncoded()
-            }
+                {
+                    X = q.XCoord.GetEncoded(),
+                    Y = q.YCoord.GetEncoded()
+                }
             });
         }
     }

@@ -6,13 +6,15 @@
     <Authors>Andrei M</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
-    <Version>2.1.0</Version>
+    <AssemblyVersion>2.1.1.0</AssemblyVersion>
+    <FileVersion>2.1.1.0</FileVersion>
+    <Version>2.1.1</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <PackageLicenseUrl />
     <PackageReleaseNotes>
+- Requires .NET Core 3.1
 - Target framework changed to netstandard2.1
+- Docker/Linux support is added, thanks to @JeroenBer
 - ApnSender now uses publisher profile instead of certificates
 - ApnSender WinHttpHandler usage is removed. It should work on Linux and Mac - !help needed to test it!
 - Firebase cloud messaging now is the only option to send Android push notifications
@@ -25,7 +27,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.7.0" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.6.7" />
   </ItemGroup>
 
 </Project>

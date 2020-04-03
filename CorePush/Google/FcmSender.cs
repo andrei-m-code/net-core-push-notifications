@@ -43,7 +43,6 @@ namespace CorePush.Google
             httpRequest.Headers.Add("Authorization", $"key = {serverKey}");
             httpRequest.Headers.Add("Sender", $"id = {senderId}");
             httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
-
             using var response = await lazyHttp.Value.SendAsync(httpRequest);
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
