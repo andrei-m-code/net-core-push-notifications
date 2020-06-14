@@ -8,14 +8,14 @@ Simple .NET Core library for sending Push Notifications for Android Firebase (FC
 
 The easiest way would be to use nuget package https://www.nuget.org/packages/CorePush.
 
-Package Manager Console:
-```
-Install-Package CorePush
-```
-
 dotnet cli:
 ```
 dotnet add package CorePush
+```
+
+Package Manager Console:
+```
+Install-Package CorePush
 ```
 
 ## Firebase Notifications (Android and iOS)
