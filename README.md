@@ -29,7 +29,7 @@ using (var fcm = new FcmSender(serverKey, senderId))
 }
 ```
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
-The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Please see the docs on what you can send https://developers.google.com/cloud-messaging/http-server-ref#send-downstream and https://firebase.google.com/docs/cloud-messaging/concept-options#notifications. Please note, we are setting the "to" property to use device token, so you don't have to do it yourself.
+The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications. Please note, we are setting the "to" property to use device token, so you don't have to do it yourself.
 
 ## Apple Push Notifications
 
