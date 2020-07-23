@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CorePush.Interfaces;
 using CorePush.Utils;
 using Newtonsoft.Json.Linq;
 
@@ -10,7 +11,7 @@ namespace CorePush.Google
     /// <summary>
     /// Firebase message sender
     /// </summary>
-    public class FcmSender : IDisposable
+    public class FcmSender : IFcmSender
     {
         private readonly string fcmUrl = "https://fcm.googleapis.com/fcm/send";
         private readonly string serverKey;

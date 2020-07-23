@@ -6,17 +6,17 @@
     <Authors>Andrei M</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>2.1.1.0</AssemblyVersion>
-    <FileVersion>2.1.1.0</FileVersion>
-    <Version>2.1.1</Version>
+    <AssemblyVersion>2.1.2.0</AssemblyVersion>
+    <FileVersion>2.1.2.0</FileVersion>
+    <Version>2.1.2</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <PackageLicenseUrl />
     <PackageReleaseNotes>
+- Added IFcmSender and IApnSender interfaces
 - Requires .NET Core 3.1
 - Target framework changed to netstandard2.1
 - Docker/Linux support is added, thanks to @JeroenBer
 - ApnSender now uses publisher profile instead of certificates
-- ApnSender WinHttpHandler usage is removed. It should work on Linux and Mac - !help needed to test it!
 - Firebase cloud messaging now is the only option to send Android push notifications
     </PackageReleaseNotes>
     <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>

@@ -1,4 +1,5 @@
-﻿using CorePush.Utils;
+﻿using CorePush.Interfaces;
+using CorePush.Utils;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 using System;
@@ -13,7 +14,7 @@ namespace CorePush.Apple
     /// <summary>
     /// HTTP2 Apple Push Notification sender
     /// </summary>
-    public class ApnSender : IDisposable
+    public class ApnSender : IApnSender
     {
         private static readonly Dictionary<ApnServerType, string> servers = new Dictionary<ApnServerType, string>
         {
