@@ -16,12 +16,14 @@ namespace CorePush.Google
         private readonly string fcmUrl = "https://fcm.googleapis.com/fcm/send";
         private readonly string serverKey;
         private readonly string senderId;
+        private readonly HttpClient httpClient;
         private readonly Lazy<HttpClient> lazyHttp = new Lazy<HttpClient>();
 
-        public FcmSender(string serverKey, string senderId)
+        public FcmSender(string serverKey, string senderId, HttpClient httpClient = null)
         {
             this.serverKey = serverKey;
             this.senderId = senderId;
+            this.httpClient = httpClient;
         }
 
         /// <summary>
@@ -44,7 +46,8 @@ namespace CorePush.Google
             httpRequest.Headers.Add("Authorization", $"key = {serverKey}");
             httpRequest.Headers.Add("Sender", $"id = {senderId}");
             httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            using var response = await lazyHttp.Value.SendAsync(httpRequest);
+
+            using var response = await (httpClient ?? lazyHttp.Value).SendAsync(httpRequest);
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
 

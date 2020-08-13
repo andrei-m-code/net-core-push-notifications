@@ -30,7 +30,8 @@ namespace CorePush.Apple
         private readonly string appBundleIdentifier;
         private readonly ApnServerType server;
         private readonly Lazy<string> jwtToken;
-        private readonly Lazy<HttpClient> http;
+        private readonly HttpClient httpClient;
+        private readonly Lazy<HttpClient> lazyHttp;
 
         /// <summary>
         /// Initialize sender
@@ -40,7 +41,7 @@ namespace CorePush.Apple
         /// <param name="teamId">Apple 10 digit team id</param>
         /// <param name="appBundleIdentifier">App slug / bundle name</param>
         /// <param name="server">Development or Production server</param>
-        public ApnSender(string p8privateKey, string p8privateKeyId, string teamId, string appBundleIdentifier, ApnServerType server)
+        public ApnSender(string p8privateKey, string p8privateKeyId, string teamId, string appBundleIdentifier, ApnServerType server, HttpClient httpClient = null)
         {
             this.p8privateKey = p8privateKey;
             this.p8privateKeyId = p8privateKeyId;
@@ -48,7 +49,8 @@ namespace CorePush.Apple
             this.server = server;
             this.appBundleIdentifier = appBundleIdentifier;
             this.jwtToken = new Lazy<string>(() => CreateJwtToken());
-            this.http = new Lazy<HttpClient>(() => new HttpClient());
+            this.httpClient = httpClient;
+            this.lazyHttp = new Lazy<HttpClient>(() => new HttpClient());
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace CorePush.Apple
                 request.Headers.Add(apnidHeader, apnsId);
             }
 
-            using var response = await http.Value.SendAsync(request);
+            using var response = await (httpClient ?? lazyHttp.Value).SendAsync(request);
             var succeed = response.IsSuccessStatusCode;
             var content = await response.Content.ReadAsStringAsync();
             var error = JsonHelper.Deserialize<ApnsError>(content);
@@ -109,28 +111,28 @@ namespace CorePush.Apple
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
             using var dsa = GetEllipticCurveAlgorithm(p8privateKey);
             var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-            
+
             return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
 
         private static int ToEpoch(DateTime time)
         {
-            var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
+            var span = time - new DateTime(1970, 1, 1);
             return Convert.ToInt32(span.TotalSeconds);
         }
 
         public void Dispose()
         {
-            if (http.IsValueCreated)
+            if (lazyHttp.IsValueCreated)
             {
-                http.Value.Dispose();
+                lazyHttp.Value.Dispose();
             }
         }
 
         // Needed to run on docker linux: ECDsa.Create("ECDsaCng") would generate PlatformNotSupportedException: Windows Cryptography Next Generation (CNG) is not supported on this platform.
         private static ECDsa GetEllipticCurveAlgorithm(string privateKey)
         {
-            var keyParams = (ECPrivateKeyParameters) PrivateKeyFactory
+            var keyParams = (ECPrivateKeyParameters)PrivateKeyFactory
                 .CreateKey(Convert.FromBase64String(privateKey));
 
             var q = keyParams.Parameters.G.Multiply(keyParams.D).Normalize();
