@@ -47,7 +47,17 @@ namespace CorePush.Apple
             this.server = server;
             this.appBundleIdentifier = appBundleIdentifier;
             this.jwtToken = new Lazy<string>(() => CreateJwtToken());
-            this.http = new Lazy<HttpClient>(() => new HttpClient());
+
+            ///Disable SSL validation 
+            /// issue => https://github.com/andrei-m-code/net-core-push-notifications/issues/26#issue-688386712
+            var httpClientHandler = new HttpClientHandler
+            {
+                // Return `true` to allow certificates that are untrusted/invalid
+                ServerCertificateCustomValidationCallback =
+              HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+            var httpClient = new HttpClient(httpClientHandler);
+            this.http = new Lazy<HttpClient>(() => httpClient);
         }
 
         /// <summary>
@@ -108,7 +118,7 @@ namespace CorePush.Apple
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
             using var dsa = GetEllipticCurveAlgorithm(p8privateKey);
             var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-            
+
             return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
 
@@ -129,7 +139,7 @@ namespace CorePush.Apple
         // Needed to run on docker linux: ECDsa.Create("ECDsaCng") would generate PlatformNotSupportedException: Windows Cryptography Next Generation (CNG) is not supported on this platform.
         private static ECDsa GetEllipticCurveAlgorithm(string privateKey)
         {
-            var keyParams = (ECPrivateKeyParameters) PrivateKeyFactory
+            var keyParams = (ECPrivateKeyParameters)PrivateKeyFactory
                 .CreateKey(Convert.FromBase64String(privateKey));
 
             var q = keyParams.Parameters.G.Multiply(keyParams.D).Normalize();
