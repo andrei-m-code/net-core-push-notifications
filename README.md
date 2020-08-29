@@ -23,28 +23,24 @@ Install-Package CorePush
 For Firebase messages we will need project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
 
 ```csharp
-using (var fcm = new FcmSender(serverKey, senderId))
-{
-    await fcm.SendAsync(deviceToken, notification);
-}
+var fcm = new FcmSender(settings, httpClient);
+await fcm.SendAsync(deviceToken, notification);
 ```
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
 The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications. Please note, we are setting the "to" property to use device token, so you don't have to do it yourself.
 
 ## Apple Push Notifications
 
-To send notifications to Apple devices you have to create a publisher profile and pass necessary parameters to ApnSender constructor. Apn Sender will create and sign JWT token and attach it to every request to Apple servers:
-1. p8privateKey - p8 certificate generated in itunes. Just 1 line string without spaces, ----- or line breaks.
-2. privateKeyId - 10 digit p8 certificate id. Usually a part of a downloadable certificate filename e.g. AuthKey_IDOFYOURCR.p8</param>
-3. teamId - Apple 10 digit team id from itunes
-4. appBundleIdentifier - App slug / bundle name e.g.com.myawesomecompany.helloworld
-5. server - Development or Production APN server
+To send notifications to Apple devices you have to create a publisher profile and pass settings object with necessary parameters to ApnSender constructor. Apn Sender will create and sign JWT token and attach it to every request to Apple servers:
+1. P8 private key - p8 certificate generated in itunes. Just 1 line string without spaces, ----- or line breaks.
+2. Private key id - 10 digit p8 certificate id. Usually a part of a downloadable certificate filename e.g. AuthKey_IDOFYOURCR.p8</param>
+3. Team id - Apple 10 digit team id from itunes
+4. App bundle identifier - App slug / bundle name e.g.com.myawesomecompany.helloworld
+5. Server type - Development or Production APN server
 
 ```csharp
-using (var apn = new ApnSender(p8privateKey, p8privateKeyId, teamId, appBundleIdentifier, server)) 
-{
-    await apn.SendAsync(notification, deviceToken);
-}
+var apn = new ApnSender(settings, httpClient);
+await apn.SendAsync(notification, deviceToken);
 ```
 **IMPORTANT**: Initialize 1 ApnSender per bundle, send messages and don't forget to dispose your object. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
 
