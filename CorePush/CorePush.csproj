@@ -11,7 +11,7 @@
     <FileVersion>3.0.0.0</FileVersion>
     <Version>3.0.0</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/andrei-m-code/net-core-push-notifications/blob/master/LICENSE.md</PackageLicenseUrl>
+    <License>https://github.com/andrei-m-code/net-core-push-notifications/blob/master/LICENSE.md</License>
     <PackageReleaseNotes>
 v3.0.0 [Includes breaking changes]
 - Added ApnSettings and FcmSettings
