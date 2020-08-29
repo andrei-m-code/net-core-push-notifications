@@ -4,7 +4,7 @@ using CorePush.Apple;
 
 namespace CorePush.Interfaces
 {
-    public interface IApnSender : IDisposable
+    public interface IApnSender
     {
         Task<ApnsResponse> SendAsync(
             object notification,
