@@ -6,13 +6,16 @@
     <Authors>Andrei M</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
-    <Version>3.0.0</Version>
+    <AssemblyVersion>3.0.1.0</AssemblyVersion>
+    <FileVersion>3.0.1.0</FileVersion>
+    <Version>3.0.1</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <!-- <PackageLicenseFile>LICENSE.md</PackageLicenseFile> -->
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>
+v3.0.1
+- Removed Portable.BouncyCastle and System.Security.Cryptography.Cng dependency
+
 v3.0.0 [Includes breaking changes]
 - Added ApnSettings and FcmSettings
 - HttpClient has to be injected for FcmSender and ApnSender
@@ -36,8 +39,6 @@ Previous Versions:
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.7.0" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.6.7" />
   </ItemGroup>
 
 </Project>

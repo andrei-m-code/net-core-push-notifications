@@ -1,7 +1,5 @@
 ﻿using CorePush.Interfaces;
 using CorePush.Utils;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -108,9 +106,9 @@ namespace CorePush.Apple
             var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
             var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
-            using var dsa = GetEllipticCurveAlgorithm(settings.P8PrivateKey);
+            using var dsa = ECDsa.Create();
+            dsa.ImportPkcs8PrivateKey(Convert.FromBase64String(settings.P8PrivateKey), out _);
             var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-            
             return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
 
@@ -118,25 +116,6 @@ namespace CorePush.Apple
         {
             var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
             return Convert.ToInt32(span.TotalSeconds);
-        }
-
-        // TODO: I'd like to get rid of BouncyCastle dependency...
-        // Needed to run on docker linux: ECDsa.Create("ECDsaCng") would generate PlatformNotSupportedException: Windows Cryptography Next Generation (CNG) is not supported on this platform.
-        private static ECDsa GetEllipticCurveAlgorithm(string privateKey)
-        {
-            var keyParams = (ECPrivateKeyParameters) PrivateKeyFactory.CreateKey(Convert.FromBase64String(privateKey));
-            var q = keyParams.Parameters.G.Multiply(keyParams.D).Normalize();
-
-            return ECDsa.Create(new ECParameters
-            {
-                Curve = ECCurve.CreateFromValue(keyParams.PublicKeyParamSet.Id),
-                D = keyParams.D.ToByteArrayUnsigned(),
-                Q =
-                {
-                    X = q.XCoord.GetEncoded(),
-                    Y = q.YCoord.GetEncoded()
-                }
-            });
         }
     }
 }
