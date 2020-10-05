@@ -2,7 +2,7 @@
 
 
 # CorePush - .NET Core Android Firebase (FCM) and Apple iOS JWT HTTP/2 Push notifications (APN)
-Simple .NET Core library for sending Push Notifications for Android Firebase (FCM) and iOS (APN) with JWT HTTP/2 API. **Important**: requires .NET Core 3.1.
+Simple .NET Core library for sending Push Notifications for Android Firebase (FCM) and iOS (APN) with JWT HTTP/2 API. **Important**: requires .NET Core 3.1. The library has no 3rd-party dependencies. Very lightweight.
 
 ## Installation
 
