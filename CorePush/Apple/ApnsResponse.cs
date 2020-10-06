@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CorePush.Utils;
+using Newtonsoft.Json;
 
 namespace CorePush.Apple
 {
@@ -9,6 +8,8 @@ namespace CorePush.Apple
         public bool IsSuccess { get; set;  }
 
         public ApnsError Error { get; set; }
+
+        public override string ToString() => JsonHelper.Serialize(this);
     }
 
     public class ApnsError

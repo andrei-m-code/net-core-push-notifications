@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using CorePush.Google;
+using System.Threading.Tasks;
 
 namespace CorePush.Interfaces
 {

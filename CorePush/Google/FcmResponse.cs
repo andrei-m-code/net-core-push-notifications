@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CorePush.Utils;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace CorePush.Google
@@ -34,5 +35,7 @@ namespace CorePush.Google
         {
             return Success > 0 && Failure == 0;
         }
+
+        public override string ToString() => JsonHelper.Serialize(this);
     }
 }
