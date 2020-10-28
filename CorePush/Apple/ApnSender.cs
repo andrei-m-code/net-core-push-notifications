@@ -3,6 +3,7 @@ using CorePush.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -100,14 +101,14 @@ namespace CorePush.Apple
 
         private string CreateJwtToken()
         {
-            var header = JsonHelper.Serialize(new { alg = "ES256", kid = settings.P8PrivateKeyId });
+            var header = JsonHelper.Serialize(new { alg = "ES256", kid = CleanP8Key(settings.P8PrivateKeyId) });
             var payload = JsonHelper.Serialize(new { iss = settings.TeamId, iat = ToEpoch(DateTime.UtcNow) });
             var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
             var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
             var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
             using var dsa = ECDsa.Create();
-            dsa.ImportPkcs8PrivateKey(Convert.FromBase64String(settings.P8PrivateKey), out _);
+            dsa.ImportPkcs8PrivateKey(Convert.FromBase64String(CleanP8Key(settings.P8PrivateKey)), out _);
             var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
             return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
@@ -116,6 +117,29 @@ namespace CorePush.Apple
         {
             var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
             return Convert.ToInt32(span.TotalSeconds);
+        }
+
+        private static string CleanP8Key(string p8Key)
+        {
+            // If we have an empty p8Key, then don't bother doing any tasks.
+            if (string.IsNullOrEmpty(p8Key))
+            {
+                return p8Key;
+            }
+
+            List<string> lines = p8Key.Split(new char[] { '\n' }).ToList();
+            if (0 != lines.Count && lines[0].StartsWith("-----BEGIN PRIVATE KEY-----"))
+            {
+                lines.RemoveAt(0);
+            }
+
+            if (0 != lines.Count && lines[lines.Count - 1].StartsWith("-----END PRIVATE KEY-----"))
+            {
+                lines.RemoveAt(lines.Count - 1);
+            }
+
+            string result = string.Join("", lines);
+            return result;
         }
     }
 }
