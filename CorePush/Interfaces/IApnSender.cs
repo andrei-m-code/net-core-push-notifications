@@ -13,6 +13,7 @@ namespace CorePush.Interfaces
             int apnsExpiration = 0,
             int apnsPriority = 10,
             bool isBackground = false,
+            int maxRetries = 0,
             IJwtTokenProvider jwtProvider = null);
     }
 }

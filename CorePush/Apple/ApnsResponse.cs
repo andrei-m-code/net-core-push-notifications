@@ -6,6 +6,8 @@ namespace CorePush.Apple
 {
     public class ApnsResponse
     {
+        public int StatusCode;
+
         public bool IsSuccess { get; set;  }
 
         public ApnsError Error { get; set; }

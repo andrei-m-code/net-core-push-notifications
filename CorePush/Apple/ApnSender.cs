@@ -53,6 +53,7 @@ namespace CorePush.Apple
             int apnsExpiration = 0,
             int apnsPriority = 10,
             bool isBackground = false,
+            int maxRetries=0,
             IJwtTokenProvider jwtProvider = null)
         {
 
@@ -65,11 +66,12 @@ namespace CorePush.Apple
             var json = JsonHelper.Serialize(notification);
 
             int tryCount = 0;
+            int statusCode = -1;
             bool succeed = false;
             string content = null;
             ApnsError error = null;
 
-            while (!succeed && tryCount++ < 3)
+            while (!succeed && tryCount++ <= maxRetries)
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, new Uri(servers[settings.ServerType] + path))
                 {
@@ -82,32 +84,30 @@ namespace CorePush.Apple
                 request.Headers.Add("apns-topic", settings.AppBundleIdentifier);
                 request.Headers.Add("apns-expiration", apnsExpiration.ToString());
                 request.Headers.Add("apns-priority", apnsPriority.ToString());
-                request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // for iOS 13 required
+                request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // Required for watchOS 6 and later; recommended for macOS, iOS, tvOS, and iPadOS
                 if (!string.IsNullOrWhiteSpace(apnsId))
                 {
                     request.Headers.Add(apnidHeader, apnsId);
                 }
 
                 using var response = await http.SendAsync(request);
-
-                // The JWT token could be invalided within the token expiry period
-                // or the developer could have revoked and setup a new P18 certificate
-                if (HttpStatusCode.Forbidden.Equals(response.StatusCode))
-                {
-                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", jwtProvider.GetJwtToken(settings));
-                }
-
                 succeed = response.IsSuccessStatusCode;
                 content = await response.Content.ReadAsStringAsync();
+                statusCode = (int)response.StatusCode;
                 error = JsonHelper.Deserialize<ApnsError>(content);
+
+                if (HttpStatusCode.Forbidden.Equals(response.StatusCode))
+                {
+                    jwtProvider.ClearJwtToken(settings);
+                }
             }
 
             return new ApnsResponse
             {
                 IsSuccess = succeed,
+                StatusCode = statusCode,
                 Error = error
             };
         }
-
     }
 }

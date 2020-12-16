@@ -44,5 +44,9 @@ namespace CorePush.Apple
             return Convert.ToInt32(span.TotalSeconds);
         }
 
+        public void ClearJwtToken(ApnSettings settings)
+        {
+            tokens.TryRemove(settings.AppBundleIdentifier, out _);
+        }
     }
 }
