@@ -3,6 +3,7 @@ using CorePush.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,7 +16,6 @@ namespace CorePush.Apple
     /// </summary>
     public class ApnSender : IApnSender
     {
-        private static readonly ConcurrentDictionary<string, Tuple<string, DateTime>> tokens = new ConcurrentDictionary<string, Tuple<string, DateTime>>();
         private static readonly Dictionary<ApnServerType, string> servers = new Dictionary<ApnServerType, string>
         {
             {ApnServerType.Development, "https://api.development.push.apple.com:443" },
@@ -23,7 +23,6 @@ namespace CorePush.Apple
         };
 
         private const string apnidHeader = "apns-id";
-        private const int tokenExpiresMinutes = 50;
 
         private readonly ApnSettings settings;
         private readonly HttpClient http;
@@ -46,38 +45,62 @@ namespace CorePush.Apple
         /// to receive too many requests and may ocasionally respond with HTTP 429. Just try/catch this call and retry as needed.
         /// </summary>
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
+        /// 
         public async Task<ApnsResponse> SendAsync(
             object notification,
             string deviceToken,
             string apnsId = null,
             int apnsExpiration = 0,
             int apnsPriority = 10,
-            bool isBackground = false)
+            bool isBackground = false,
+            IJwtTokenProvider jwtProvider = null)
         {
+
+            if (jwtProvider == null)
+            {
+                jwtProvider = new DefaultJwtTokenProvider();
+            }
+
             var path = $"/3/device/{deviceToken}";
             var json = JsonHelper.Serialize(notification);
 
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(servers[settings.ServerType] + path))
-            {
-                Version = new Version(2, 0),
-                Content = new StringContent(json)
-            };
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", GetJwtToken());
-            request.Headers.TryAddWithoutValidation(":method", "POST");
-            request.Headers.TryAddWithoutValidation(":path", path);
-            request.Headers.Add("apns-topic", settings.AppBundleIdentifier);
-            request.Headers.Add("apns-expiration", apnsExpiration.ToString());
-            request.Headers.Add("apns-priority", apnsPriority.ToString());
-            request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // for iOS 13 required
-            if (!string.IsNullOrWhiteSpace(apnsId))
-            {
-                request.Headers.Add(apnidHeader, apnsId);
-            }
+            int tryCount = 0;
+            bool succeed = false;
+            string content = null;
+            ApnsError error = null;
 
-            using var response = await http.SendAsync(request);
-            var succeed = response.IsSuccessStatusCode;
-            var content = await response.Content.ReadAsStringAsync();
-            var error = JsonHelper.Deserialize<ApnsError>(content);
+            while (!succeed && tryCount++ < 3)
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, new Uri(servers[settings.ServerType] + path))
+                {
+                    Version = new Version(2, 0),
+                    Content = new StringContent(json)
+                };
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", jwtProvider.GetJwtToken(settings));
+                request.Headers.TryAddWithoutValidation(":method", "POST");
+                request.Headers.TryAddWithoutValidation(":path", path);
+                request.Headers.Add("apns-topic", settings.AppBundleIdentifier);
+                request.Headers.Add("apns-expiration", apnsExpiration.ToString());
+                request.Headers.Add("apns-priority", apnsPriority.ToString());
+                request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // for iOS 13 required
+                if (!string.IsNullOrWhiteSpace(apnsId))
+                {
+                    request.Headers.Add(apnidHeader, apnsId);
+                }
+
+                using var response = await http.SendAsync(request);
+
+                // The JWT token could be invalided within the token expiry period
+                // or the developer could have revoked and setup a new P18 certificate
+                if (HttpStatusCode.Forbidden.Equals(response.StatusCode))
+                {
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", jwtProvider.GetJwtToken(settings));
+                }
+
+                succeed = response.IsSuccessStatusCode;
+                content = await response.Content.ReadAsStringAsync();
+                error = JsonHelper.Deserialize<ApnsError>(content);
+            }
 
             return new ApnsResponse
             {
@@ -86,36 +109,5 @@ namespace CorePush.Apple
             };
         }
 
-        private string GetJwtToken()
-        {
-            var (token, date) = tokens.GetOrAdd(settings.AppBundleIdentifier, _ => new Tuple<string, DateTime>(CreateJwtToken(), DateTime.UtcNow));
-            if (date < DateTime.UtcNow.AddMinutes(-tokenExpiresMinutes))
-            {
-                tokens.TryRemove(settings.AppBundleIdentifier, out _);
-                return GetJwtToken();
-            }
-
-            return token;
-        }
-
-        private string CreateJwtToken()
-        {
-            var header = JsonHelper.Serialize(new { alg = "ES256", kid = settings.P8PrivateKeyId });
-            var payload = JsonHelper.Serialize(new { iss = settings.TeamId, iat = ToEpoch(DateTime.UtcNow) });
-            var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
-            var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
-            var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
-            var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
-            using var dsa = ECDsa.Create();
-            dsa.ImportPkcs8PrivateKey(Convert.FromBase64String(settings.P8PrivateKey), out _);
-            var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-            return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
-        }
-
-        private static int ToEpoch(DateTime time)
-        {
-            var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
-            return Convert.ToInt32(span.TotalSeconds);
-        }
     }
 }
