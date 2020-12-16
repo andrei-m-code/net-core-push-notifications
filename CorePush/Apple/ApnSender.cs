@@ -18,7 +18,7 @@ namespace CorePush.Apple
     {
         private static readonly Dictionary<ApnServerType, string> servers = new Dictionary<ApnServerType, string>
         {
-            {ApnServerType.Development, "https://api.development.push.apple.com:443" },
+            {ApnServerType.Development, "https://api.sandbox.push.apple.com:443" },
             {ApnServerType.Production, "https://api.push.apple.com:443" }
         };
 
