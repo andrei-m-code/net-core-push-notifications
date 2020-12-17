@@ -21,6 +21,7 @@ namespace CorePush.Apple
             {ApnServerType.Development, "https://api.sandbox.push.apple.com:443" },
             {ApnServerType.Production, "https://api.push.apple.com:443" }
         };
+        private static readonly IJwtTokenProvider defaultJwtTokenProvider = new DefaultJwtTokenProvider();
 
         private const string apnidHeader = "apns-id";
 
@@ -54,13 +55,10 @@ namespace CorePush.Apple
             int apnsPriority = 10,
             bool isBackground = false,
             int maxRetries=0,
-            IJwtTokenProvider jwtProvider = null)
+            IJwtTokenProvider jwtProviderOverride = null)
         {
 
-            if (jwtProvider == null)
-            {
-                jwtProvider = new DefaultJwtTokenProvider();
-            }
+            var jwtProvider = jwtProviderOverride != null ? jwtProviderOverride : defaultJwtTokenProvider;
 
             var path = $"/3/device/{deviceToken}";
             var json = JsonHelper.Serialize(notification);
