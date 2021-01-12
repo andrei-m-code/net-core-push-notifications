@@ -1,8 +1,11 @@
 ﻿using CorePush.Interfaces;
 using CorePush.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -48,10 +51,10 @@ namespace CorePush.Apple
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
         /// 
         public async Task<ApnsResponse> SendAsync(
-            object notification,
+            AppleNotification notification,
             string deviceToken,
             string apnsId = null,
-            int apnsExpiration = 0,
+            long apnsExpiration = 0,
             int apnsPriority = 10,
             bool isBackground = false,
             int maxRetries=0,
@@ -61,8 +64,58 @@ namespace CorePush.Apple
             var jwtProvider = jwtProviderOverride != null ? jwtProviderOverride : defaultJwtTokenProvider;
 
             var path = $"/3/device/{deviceToken}";
+
+            // The 'data' member needs to be flattened as per
+            // https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html
+
+            var dataNode = notification.Data;
+
+            if (dataNode != null)
+            {
+                // Get rid of the child Data node
+                notification.Data = null;
+            }
+
             var json = JsonHelper.Serialize(notification);
 
+            if (dataNode != null)
+            {
+                // HACK - need to improve this
+                // Strip off the {{ and }} wrappers around the serialised data
+                // object then inject it as a peer to the main payload,
+                //
+                // e.g.
+                //
+                // {
+                //  "aps": {
+                //    "alert": {
+                //      "title": "Test Title",
+                //      "subtitle": "Test SubTitle",
+                //      "body": "Test Body"
+                //    }
+                //  },
+                //  "key1": "value1", <<-- NOTE, peer to APS not nested below
+                //  "key2": "value2",
+                //  "key3": "333",
+                //  "key4": null
+                // }
+                //
+                // If we didn't do this then the JSON properties would nest
+                // all the data payload below a "Data" node which would be wrong
+                string dataJson = JsonHelper.Serialize(dataNode);
+                dataJson = dataJson.Substring(1);
+                dataJson = "," + dataJson.Substring(0, dataJson.Length - 1);
+
+                // Now it doesn't have the wrapper we can inject it into
+                // the main payload
+                StringBuilder sb = new StringBuilder();
+                sb.Append(json);
+                sb.Insert(json.Length-1, dataJson);
+
+                // Replace the previous JSON with the data injected as a peer
+                json = sb.ToString();
+            }
+            
             int tryCount = 0;
             int statusCode = -1;
             bool succeed = false;

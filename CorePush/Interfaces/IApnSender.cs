@@ -7,10 +7,10 @@ namespace CorePush.Interfaces
     public interface IApnSender
     {
         Task<ApnsResponse> SendAsync(
-            object notification,
+            AppleNotification notification,
             string deviceToken,
             string apnsId = null,
-            int apnsExpiration = 0,
+            long apnsExpiration = 0,
             int apnsPriority = 10,
             bool isBackground = false,
             int maxRetries = 0,
