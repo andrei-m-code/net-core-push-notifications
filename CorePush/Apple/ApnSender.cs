@@ -3,7 +3,6 @@ using CorePush.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,7 +13,7 @@ namespace CorePush.Apple
     /// <summary>
     /// HTTP2 Apple Push Notification sender
     /// </summary>
-    public class ApnSender : IApnSender
+    public class ApnSender : IApnSender, IDisposable
     {
         private static readonly ConcurrentDictionary<string, Tuple<string, DateTime>> tokens = new ConcurrentDictionary<string, Tuple<string, DateTime>>();
         private static readonly Dictionary<ApnServerType, string> servers = new Dictionary<ApnServerType, string>
@@ -37,6 +36,8 @@ namespace CorePush.Apple
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.http = http ?? throw new ArgumentNullException(nameof(http));
+
+            _CachedDirtyNonce = settings.GetDirtyNonce() - 1;
         }
 
         /// <summary>
@@ -103,47 +104,79 @@ namespace CorePush.Apple
 
         private string CreateJwtToken()
         {
-            var header = JsonHelper.Serialize(new { alg = "ES256", kid = CleanP8Key(settings.P8PrivateKeyId) });
             var payload = JsonHelper.Serialize(new { iss = settings.TeamId, iat = ToEpoch(DateTime.UtcNow) });
-            var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
             var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
-            var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
+            var unsignedJwtData = $"{GetBase64Header()}.{payloadBasae64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
-            using (var dsa = AppleCryptoHelper.GetEllipticCurveAlgorithm(CleanP8Key(settings.P8PrivateKey)))
-            {
-                var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-                return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
-            }
+            var signature = GetDSA().SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
+            return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
 
         private static int ToEpoch(DateTime time)
         {
-            var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
+            var span = time - new DateTime(1970, 1, 1);
             return Convert.ToInt32(span.TotalSeconds);
         }
 
-        private static string CleanP8Key(string p8Key)
+        #region Cache
+
+        private int _CachedDirtyNonce = 0;
+        private string _CachedBase64ApnHeader;
+        private ECDsa _CachedDSA;
+        private object _CacheLock = new object { };
+
+        private string GetBase64Header()
         {
-            // If we have an empty p8Key, then don't bother doing any tasks.
-            if (string.IsNullOrEmpty(p8Key))
+            if (_CachedBase64ApnHeader == null || _CachedDirtyNonce != settings.GetDirtyNonce())
             {
-                return p8Key;
+                lock (_CacheLock)
+                {
+                    var header = JsonHelper.Serialize(new { alg = "ES256", kid = settings.P8PrivateKeyId });
+                    _CachedBase64ApnHeader = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
+                }
             }
 
-            List<string> lines = p8Key.Split(new char[] { '\n' }).ToList();
-            if (0 != lines.Count && lines[0].StartsWith("-----BEGIN PRIVATE KEY-----"))
-            {
-                lines.RemoveAt(0);
-            }
-
-            if (0 != lines.Count && lines[lines.Count - 1].StartsWith("-----END PRIVATE KEY-----"))
-            {
-                lines.RemoveAt(lines.Count - 1);
-            }
-
-            string result = string.Join("", lines);
-            return result;
+            return _CachedBase64ApnHeader;
         }
+
+        private ECDsa GetDSA()
+        {
+            if (_CachedDSA == null || _CachedDirtyNonce != settings.GetDirtyNonce())
+            {
+                lock (_CacheLock)
+                {
+                    _CachedDSA?.Dispose();
+                    _CachedDSA = null; // in case there's an exception in the next line
+                    _CachedDSA = AppleCryptoHelper.GetEllipticCurveAlgorithm(AppleCryptoHelper.CleanP8Key(settings.P8PrivateKey));
+                }
+            }
+
+            return _CachedDSA;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_CachedDSA != null)
+                {
+                    _CachedDSA.Dispose();
+                    _CachedDSA = null;
+                }
+            }
+        }
+
+        #endregion
     }
 }
