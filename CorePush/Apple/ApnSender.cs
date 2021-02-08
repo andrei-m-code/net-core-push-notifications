@@ -75,16 +75,18 @@ namespace CorePush.Apple
                 request.Headers.Add(apnidHeader, apnsId);
             }
 
-            using var response = await http.SendAsync(request);
-            var succeed = response.IsSuccessStatusCode;
-            var content = await response.Content.ReadAsStringAsync();
-            var error = JsonHelper.Deserialize<ApnsError>(content);
-
-            return new ApnsResponse
+            using (var response = await http.SendAsync(request))
             {
-                IsSuccess = succeed,
-                Error = error
-            };
+                var succeed = response.IsSuccessStatusCode;
+                var content = await response.Content.ReadAsStringAsync();
+                var error = JsonHelper.Deserialize<ApnsError>(content);
+
+                return new ApnsResponse
+                {
+                    IsSuccess = succeed,
+                    Error = error
+                };
+            }
         }
 
         private string GetJwtToken()
@@ -107,10 +109,12 @@ namespace CorePush.Apple
             var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
             var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
-            using var dsa = ECDsa.Create();
-            dsa.ImportPkcs8PrivateKey(Convert.FromBase64String(CleanP8Key(settings.P8PrivateKey)), out _);
-            var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-            return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
+
+            using (var dsa = AppleCryptoHelper.GetEllipticCurveAlgorithm(CleanP8Key(settings.P8PrivateKey)))
+            {
+                var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
+                return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
+            }
         }
 
         private static int ToEpoch(DateTime time)
