@@ -39,15 +39,20 @@ namespace CorePush.Google
             jsonObject.Add("to", JToken.FromObject(deviceId));
             var json = jsonObject.ToString();
 
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, fcmUrl);
-            httpRequest.Headers.Add("Authorization", $"key = {settings.ServerKey}");
-            httpRequest.Headers.Add("Sender", $"id = {settings.SenderId}");
-            httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            using var response = await http.SendAsync(httpRequest);
-            response.EnsureSuccessStatusCode();
-            var responseString = await response.Content.ReadAsStringAsync();
+            using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, fcmUrl))
+            {
+                httpRequest.Headers.Add("Authorization", $"key = {settings.ServerKey}");
+                httpRequest.Headers.Add("Sender", $"id = {settings.SenderId}");
+                httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            return JsonHelper.Deserialize<FcmResponse>(responseString);
+                using (var response = await http.SendAsync(httpRequest))
+                {
+                    response.EnsureSuccessStatusCode();
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    return JsonHelper.Deserialize<FcmResponse>(responseString);
+                }
+            }
         }
     }
 }
