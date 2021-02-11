@@ -6,13 +6,18 @@
     <Authors>Andrei M</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.0.1.0</AssemblyVersion>
-    <FileVersion>3.0.1.0</FileVersion>
-    <Version>3.0.1</Version>
+    <AssemblyVersion>3.0.2.0</AssemblyVersion>
+    <FileVersion>3.0.2.0</FileVersion>
+    <Version>3.0.2</Version>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <!-- <PackageLicenseFile>LICENSE.md</PackageLicenseFile> -->
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>
+v3.0.2
+- Reverted Portable.BouncyCastle so that the lib can work in shared envs (like Azure App Service)
+- Apple certificate cleanup added
+- Minor code improvements added
+
 v3.0.1
 - Removed Portable.BouncyCastle and System.Security.Cryptography.Cng dependency
 
