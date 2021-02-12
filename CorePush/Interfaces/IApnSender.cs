@@ -1,6 +1,6 @@
+using CorePush.Apple;
 using System.Threading;
 using System.Threading.Tasks;
-using CorePush.Apple;
 
 namespace CorePush.Interfaces
 {
