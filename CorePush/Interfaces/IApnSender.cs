@@ -1,4 +1,4 @@
-using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CorePush.Apple;
 
@@ -12,6 +12,7 @@ namespace CorePush.Interfaces
             string apnsId = null,
             int apnsExpiration = 0,
             int apnsPriority = 10,
-            bool isBackground = false);
+            bool isBackground = false,
+            CancellationToken cancellationToken = default);
     }
 }

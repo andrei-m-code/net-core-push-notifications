@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CorePush.Apple
@@ -53,7 +54,8 @@ namespace CorePush.Apple
             string apnsId = null,
             int apnsExpiration = 0,
             int apnsPriority = 10,
-            bool isBackground = false)
+            bool isBackground = false,
+            CancellationToken cancellationToken = default)
         {
             var path = $"/3/device/{deviceToken}";
             var json = JsonHelper.Serialize(notification);
@@ -77,7 +79,7 @@ namespace CorePush.Apple
                 request.Headers.Add(apnidHeader, apnsId);
             }
 
-            using (var response = await http.SendAsync(request))
+            using (var response = await http.SendAsync(request, cancellationToken))
             {
                 var succeed = response.IsSuccessStatusCode;
                 var content = await response.Content.ReadAsStringAsync();
