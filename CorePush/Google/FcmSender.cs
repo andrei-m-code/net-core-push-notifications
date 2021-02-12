@@ -1,9 +1,8 @@
-﻿using System;
+﻿using CorePush.Interfaces;
+using CorePush.Utils;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using CorePush.Interfaces;
-using CorePush.Utils;
 using Newtonsoft.Json.Linq;
 
 namespace CorePush.Google

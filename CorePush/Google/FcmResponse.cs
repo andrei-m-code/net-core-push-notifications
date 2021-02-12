@@ -29,7 +29,6 @@ namespace CorePush.Google
         /// <summary>
         /// Returns value indicating notification sent success or failure
         /// </summary>
-        /// <returns></returns>
         public bool IsSuccess()
         {
             return Success > 0 && Failure == 0;

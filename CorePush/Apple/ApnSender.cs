@@ -63,6 +63,7 @@ namespace CorePush.Apple
                 Version = new Version(2, 0),
                 Content = new StringContent(json)
             };
+
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", GetJwtToken());
             request.Headers.TryAddWithoutValidation(":method", "POST");
             request.Headers.TryAddWithoutValidation(":path", path);
@@ -70,6 +71,7 @@ namespace CorePush.Apple
             request.Headers.Add("apns-expiration", apnsExpiration.ToString());
             request.Headers.Add("apns-priority", apnsPriority.ToString());
             request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // for iOS 13 required
+
             if (!string.IsNullOrWhiteSpace(apnsId))
             {
                 request.Headers.Add(apnidHeader, apnsId);
@@ -131,7 +133,8 @@ namespace CorePush.Apple
                 return p8Key;
             }
 
-            List<string> lines = p8Key.Split(new char[] { '\n' }).ToList();
+            var lines = p8Key.Split(new [] { '\n' }).ToList();
+
             if (0 != lines.Count && lines[0].StartsWith("-----BEGIN PRIVATE KEY-----"))
             {
                 lines.RemoveAt(0);
@@ -142,7 +145,8 @@ namespace CorePush.Apple
                 lines.RemoveAt(lines.Count - 1);
             }
 
-            string result = string.Join("", lines);
+            var result = string.Join(string.Empty, lines);
+
             return result;
         }
     }
