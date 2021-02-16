@@ -35,7 +35,7 @@ To send notifications to Apple devices you have to create a publisher profile an
 1. P8 private key - p8 certificate generated in itunes. Just 1 line string without spaces, ----- or line breaks.
 2. Private key id - 10 digit p8 certificate id. Usually a part of a downloadable certificate filename e.g. AuthKey_IDOFYOURCR.p8</param>
 3. Team id - Apple 10 digit team id from itunes
-4. App bundle identifier - App slug / bundle name e.g.com.myawesomecompany.helloworld
+4. App bundle identifier - App slug / bundle name e.g.com.mycompany.myapp
 5. Server type - Development or Production APN server
 
 ```csharp
