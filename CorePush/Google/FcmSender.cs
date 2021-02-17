@@ -38,7 +38,7 @@ namespace CorePush.Google
             jsonObject.Remove("to");
             jsonObject.Add("to", JToken.FromObject(deviceId));
 
-            return SendAsync(jsonObject.ToString(), cancellationToken);
+            return SendAsync(jsonObject, cancellationToken);
         }
 
         /// <summary>
@@ -55,19 +55,23 @@ namespace CorePush.Google
 
             using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, fcmUrl))
             {
-                httpRequest.Headers.Add("Authorization", $"key={settings.ServerKey}");
+                httpRequest.Headers.Add("Authorization", $"key = {settings.ServerKey}");
 
-                if (string.IsNullOrEmpty(settings.SenderId))
+                if (!string.IsNullOrEmpty(settings.SenderId))
                 {
-                    httpRequest.Headers.Add("Sender", $"id={settings.SenderId}");
+                    httpRequest.Headers.Add("Sender", $"id = {settings.SenderId}");
                 }
 
                 httpRequest.Content = new StringContent(serialized, Encoding.UTF8, "application/json");
 
                 using (var response = await http.SendAsync(httpRequest, cancellationToken))
                 {
-                    response.EnsureSuccessStatusCode();
                     var responseString = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new HttpRequestException("Firebase notification error: " + responseString);
+                    }
 
                     return JsonHelper.Deserialize<FcmResponse>(responseString);
                 }
