@@ -12,6 +12,8 @@
     <PackageId>CorePush</PackageId>
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageDescription>.NET Core C# Push Notifications for Android Google Firebase Messaging (FCM) and Apple push notifications (APN).</PackageDescription>
+    <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
     <PackageReleaseNotes>
 v3.0.4
 - Bugfixes with FcmSender authorization and serialization
