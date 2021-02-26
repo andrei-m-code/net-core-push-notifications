@@ -46,9 +46,9 @@ services.AddSingleton(apnSettings);
 services.AddSingleton(fcmSettings);
 ```
 
-# Firebase Notifications (Android and iOS)
+# Firebase Cloud Messages for Android and iOS
 
-For Firebase messages we will need project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
+For Firebase messages (aka FCM) we will need project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
 
 ```csharp
 var fcm = new FcmSender(settings, httpClient);
