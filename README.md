@@ -18,6 +18,32 @@ Package Manager Console:
 Install-Package CorePush
 ```
 
+## Setup for ASP.NET Core and/or other Dependency Injection
+
+Both `ApnSender` and `FcmSender` have dependencies that need to be registered in order to enable DI. 
+
+1. Register HttpClient in Startup.cs:
+
+```
+services.AddHttpClient();
+```
+
+2. Register settings as a singleton:
+
+If you've added ApnSettings and FcmSettings into a configuration section, you can bind section directly to settings object from `IConfiguration` available in Startup.cs:
+
+```
+var section = configuration.GetSection("ApnSettings");
+var settings = new AppSettings();
+section.Bind(settings);
+```
+
+Add settings to services:
+```
+services.AddSingleton(apnSettings);
+services.AddSingleton(fcmSettings);
+```
+
 ## Firebase Notifications (Android and iOS)
 
 For Firebase messages we will need project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
