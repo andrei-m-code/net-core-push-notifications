@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/andrei-m-code/net-core-push-notifications.svg?branch=master)](https://travis-ci.org/andrei-m-code/net-core-push-notifications) [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
 
-# Sending Push Notifications from .NET Core to Android and iOS
+# Push Notifications from .NET Core to Android and iOS
 CorePush is a simple .NET Core library for sending Push Notifications for Android Firebase (FCM) and iOS (APN) with JWT HTTP/2 API. It's very lightweight and only has basic functionality. Please contribute or open github issue if you need additional features. Thank you for using it!
 
 ## Installation
