@@ -30,21 +30,11 @@ v3.0.2
 v3.0.1
 - Removed Portable.BouncyCastle and System.Security.Cryptography.Cng dependency
 
-v3.0.0 [Includes breaking changes]
+v3.0.0
 - Added ApnSettings and FcmSettings
 - HttpClient has to be injected for FcmSender and ApnSender
 - Both ApnSender and FcmSender are not IDisposable anymore as HttpClient is injected and managed outside
 - ApnSender JWT token expiration is managed according to Apple documentation
-
-v2.1.2
-- Added IFcmSender and IApnSender interfaces
-
-Previous Versions: 
-- Requires .NET Core 3.1
-- Target framework changed to netstandard2.1
-- Docker/Linux support is added, thanks to @JeroenBer
-- ApnSender now uses publisher profile instead of certificates
-- Firebase cloud messaging now is the only option to send Android push notifications
     </PackageReleaseNotes>
     <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
