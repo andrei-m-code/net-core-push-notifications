@@ -113,7 +113,7 @@ Use `[JsonProperty("alert-type")]` attribute to serialize C# properties into JSO
 
 # Known Issues
 
-* Doesn't seem like it's running on Mono (#55)[https://github.com/andrei-m-code/net-core-push-notifications/issues/55]
+* Doesn't seem like it's running on Mono [#55](https://github.com/andrei-m-code/net-core-push-notifications/issues/55)
 
 # MIT License
 
