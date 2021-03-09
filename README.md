@@ -111,6 +111,10 @@ public class AppleNotification
 ```
 Use `[JsonProperty("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
 
+# Known Issues
+
+* Doesn't seem like it's running on Mono (#55)[https://github.com/andrei-m-code/net-core-push-notifications/issues/55]
+
 # MIT License
 
 Copyright (c) 2020 Andrei M
