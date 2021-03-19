@@ -53,7 +53,7 @@ namespace CorePush.Tester
                 notification = new { body = "Hello World!" }
             };
 
-            await apn.SendAsync(payload,);
+            await apn.SendAsync(payload, apnDeviceToken);
         }
 
         private static async Task SendFcmNotificationAsync()
