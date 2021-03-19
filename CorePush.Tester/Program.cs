@@ -10,11 +10,11 @@ namespace CorePush.Tester
     {
         #region Apn Sender Settings
 
-        private const string apnBundleId = "";
-        private const string apnP8PrivateKey = "";
-        private const string apnP8PrivateKeyId = "";
-        private const string apnTeamId = "";
-        private const string apnDeviceToken = "";
+        private const string apnBundleId = "TODO";
+        private const string apnP8PrivateKey = "TODO";
+        private const string apnP8PrivateKeyId = "TODO";
+        private const string apnTeamId = "TODO";
+        private const string apnDeviceToken = "TODO";
         private const ApnServerType apnServerType = ApnServerType.Development;
 
         #endregion
@@ -26,7 +26,7 @@ namespace CorePush.Tester
 
         # endregion
 
-        private static HttpClient http = new HttpClient();
+        private static readonly HttpClient http = new HttpClient();
 
         static async Task Main()
         {
@@ -47,13 +47,15 @@ namespace CorePush.Tester
                 ServerType = apnServerType,
             };
 
-            var apn = new ApnSender(settings, http);
-            var payload = new
+            while (true)
             {
-                notification = new { body = "Hello World!" }
-            };
-
-            await apn.SendAsync(payload, apnDeviceToken);
+                var apn = new ApnSender(settings, http);
+                var payload = new AppleNotification(
+                    Guid.NewGuid(), 
+                    "Hello World (Message)",
+                    "Hello World (Title)");
+                var response = await apn.SendAsync(payload, apnDeviceToken);
+            }
         }
 
         private static async Task SendFcmNotificationAsync()
