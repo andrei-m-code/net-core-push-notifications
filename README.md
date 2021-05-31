@@ -20,7 +20,7 @@ Package Manager Console:
 Install-Package CorePush
 ```
 
-### Setup for ASP.NET Core and/or other Dependency Injection
+### Setup for ASP.NET Core with Dependency Injection
 
 Both `ApnSender` and `FcmSender` have dependencies that need to be registered in order to enable DI.
 
