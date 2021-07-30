@@ -24,10 +24,11 @@ Install-Package CorePush
 
 Both `ApnSender` and `FcmSender` have dependencies that need to be registered in order to enable DI.
 
-1. Register HttpClient in Startup.cs:
+1. Register HttpClient in Startup.cs. This will allow injection of HttpClient into the FCM and APN senders:
 
 ```
-services.AddHttpClient();
+services.AddHttpClient<FcmSender>();
+services.AddHttpClient<ApnSender>();
 ```
 
 2. Register settings as a singleton:
