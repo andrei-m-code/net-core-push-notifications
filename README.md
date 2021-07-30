@@ -8,7 +8,7 @@ CorePush is a simple .NET Core library for sending Push Notifications for Androi
 
 ### NuGet Package
 
-The easiest way would be to use [nuget](https://www.nuget.org/packages/CorePush) package.
+The easiest way to get started with CorePush is to use [nuget](https://www.nuget.org/packages/CorePush) package.
 
 dotnet cli:
 ```
