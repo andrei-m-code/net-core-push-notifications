@@ -1,6 +1,6 @@
 [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
-# .NET Core Push Notifications
+# .NET Core Push Notifications for Web, Android and iOS
 Send notifications to:
 - ✅ iOS - Apple Push Notifications (APN)
 - ✅ Android - via Firebase Cloud Messaging
