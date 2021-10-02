@@ -13,13 +13,15 @@
     <AssemblyVersion>3.0.6.0</AssemblyVersion>
     <FileVersion>3.0.6.0</FileVersion>
     <Version>3.0.6</Version>
-
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    
     <PackageId>CorePush</PackageId>
+    <PackageIcon>Icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>
 
     <PackageReleaseNotes>
@@ -57,6 +59,7 @@ v3.0.0
   </ItemGroup>
   
   <ItemGroup>
+    <None Include="..\Icon.png" Pack="true" PackagePath="Icon.png" />
     <None Include="..\README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
 
