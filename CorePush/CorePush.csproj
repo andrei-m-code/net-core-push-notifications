@@ -25,7 +25,7 @@
     <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>
 
     <PackageReleaseNotes>
-v3.0.5, v3.0.6, v3.0.7, v3.0.8
+v3.0.5, v3.0.6, v3.0.7, v3.0.8, v3.0.9
 - Minor code improvements
 - Documentation update
 - Package icon
