@@ -22,7 +22,7 @@
     <PackageIcon>Icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>
+    <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
 
     <PackageReleaseNotes>
 v3.0.5 - v3.0.10
