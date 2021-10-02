@@ -3,8 +3,8 @@
 # .NET Core Push Notifications for Web, Android and iOS
 Send notifications to:
 - ✅ iOS - Apple Push Notifications (APN)
-- ✅ Android - via Firebase Cloud Messaging
-- ✅ Web - via Cloud Messaging
+- ✅ Android - via Firebase Cloud Messaging (FCM)
+- ✅ Web - via Firebase Cloud Messaging (FCM)
 
 CorePush is a lightweight library with minimal overhead. Send notifications to Android and Web using Firebase Cloud Messaging and iOS APN with JWT HTTP/2 API.
 
