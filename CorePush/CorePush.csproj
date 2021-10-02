@@ -10,9 +10,9 @@
     <Summary>.NET Core C# Push Notifications for Android Google Firebase Messaging (FCM) and Apple push notifications (APN).</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>3.0.5.0</AssemblyVersion>
-    <FileVersion>3.0.5.0</FileVersion>
-    <Version>3.0.5</Version>
+    <AssemblyVersion>3.0.6.0</AssemblyVersion>
+    <FileVersion>3.0.6.0</FileVersion>
+    <Version>3.0.6</Version>
 
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,9 +21,9 @@
     <RepositoryType>git</RepositoryType>
     <PackageId>CorePush</PackageId>
     <PackageTags>push-notifications apn fcm firebase android-push-notifications ios-push-notifications</PackageTags>
-    
+
     <PackageReleaseNotes>
-v3.0.5
+v3.0.5, v3.0.6
 - Minor code improvements
 - Documentation update
 
