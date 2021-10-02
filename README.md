@@ -1,11 +1,16 @@
 [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
-# .NET Core Push Notifications for Android and iOS
-CorePush is a simple .NET Core library for sending Push Notifications for Android Firebase (FCM) and iOS (APN) with JWT HTTP/2 API. It's very lightweight and only has basic functionality. Please contribute or open github issue if you need additional features. Thank you for using it!
+# .NET Core Push Notifications
+Send notifications to:
+- ✅ iOS - Apple Push Notifications (APN)
+- ✅ Android - via Firebase Cloud Messaging
+- ✅ Web - via Cloud Messaging
 
-## Installation
+CorePush is a lightweight library with minimal overhead. Send notifications to Android and Web using Firebase Cloud Messaging and iOS APN with JWT HTTP/2 API.
 
-### NuGet Package
+# Installation
+
+## NuGet Package
 
 The easiest way to get started with CorePush is to use [nuget](https://www.nuget.org/packages/CorePush) package.
 
@@ -19,7 +24,7 @@ Package Manager Console:
 Install-Package CorePush
 ```
 
-### Setup for ASP.NET Core with Dependency Injection
+## Setup for ASP.NET Core with Dependency Injection
 
 Both `ApnSender` and `FcmSender` have dependencies that need to be registered in order to enable DI.
 
@@ -46,7 +51,7 @@ services.AddSingleton(apnSettings);
 services.AddSingleton(fcmSettings);
 ```
 
-# Firebase Cloud Messages for Android and iOS
+# Firebase Cloud Messages for Android, iOS and Web
 
 For Firebase messages (aka FCM) we will need a project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
 
