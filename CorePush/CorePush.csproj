@@ -4,14 +4,14 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-    <Title>.NET Core Push Notifications for ✅Web, ✅Android and ✅iOS</Title>
-    <PackageDescription>.NET Core Push Notifications for ✅Web, ✅Android and ✅iOS</PackageDescription>
-    <Description>.NET Core Push Notifications for ✅Web, ✅Android and ✅iOS</Description>
-    <Summary>.NET Core Push Notifications for ✅Web, ✅Android and ✅iOS</Summary>
+    <Title>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Title>
+    <PackageDescription>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</PackageDescription>
+    <Description>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Description>
+    <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>3.0.10.0</AssemblyVersion>
-    <FileVersion>3.0.10.0</FileVersion>
+    <AssemblyVersion>3.0.10</AssemblyVersion>
+    <FileVersion>3.0.10</FileVersion>
     <Version>3.0.10</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
