@@ -10,9 +10,9 @@
     <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>3.0.10</AssemblyVersion>
-    <FileVersion>3.0.10</FileVersion>
-    <Version>3.0.10</Version>
+    <AssemblyVersion>3.0.11</AssemblyVersion>
+    <FileVersion>3.0.11</FileVersion>
+    <Version>3.0.11</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
@@ -25,6 +25,9 @@
     <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
 
     <PackageReleaseNotes>
+v3.0.11
+- Package versions update
+
 v3.0.5 - v3.0.10
 - Minor code improvements
 - Documentation update
@@ -55,8 +58,8 @@ v3.0.0
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
   </ItemGroup>
   
   <ItemGroup>
