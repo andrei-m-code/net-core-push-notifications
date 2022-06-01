@@ -35,7 +35,7 @@ services.AddHttpClient<FcmSender>();
 services.AddHttpClient<ApnSender>();
 ```
 
-2. Register settings as a singleton:
+2. Register settings object as a singleton:
 
 If you've added ApnSettings and FcmSettings into a configuration section, you can bind section directly to settings object from `IConfiguration` available in Startup.cs:
 
