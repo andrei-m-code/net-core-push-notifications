@@ -25,7 +25,7 @@ namespace CorePush.Apple
             {ApnServerType.Production, "https://api.push.apple.com:443" }
         };
 
-        private const string apnidHeader = "apns-id";
+        private const string apnIdHeader = "apns-id";
         private const int tokenExpiresMinutes = 50;
 
         private readonly ApnSettings settings;
@@ -40,6 +40,8 @@ namespace CorePush.Apple
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.http = http ?? throw new ArgumentNullException(nameof(http));
+
+            http.BaseAddress = http.BaseAddress ?? new Uri(servers[settings.ServerType]);
         }
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace CorePush.Apple
         /// https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1
         /// Payload will be serialized using Newtonsoft.Json package.
         /// !IMPORTANT: If you send many messages at once, make sure to retry those calls. Apple typically doesn't like 
-        /// to receive too many requests and may ocasionally respond with HTTP 429. Just try/catch this call and retry as needed.
+        /// to receive too many requests and may occasionally respond with HTTP 429. Just try/catch this call and retry as needed.
         /// </summary>
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
         public async Task<ApnsResponse> SendAsync(
@@ -62,36 +64,36 @@ namespace CorePush.Apple
             var path = $"/3/device/{deviceToken}";
             var json = JsonHelper.Serialize(notification);
 
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(servers[settings.ServerType] + path))
+            using (var message = new HttpRequestMessage(HttpMethod.Post, path))
             {
-                Version = new Version(2, 0),
-                Content = new StringContent(json)
-            };
+                message.Version = new Version(2, 0);
+                message.Content = new StringContent(json);
+                
+                message.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetJwtToken());
+                message.Headers.TryAddWithoutValidation(":method", "POST");
+                message.Headers.TryAddWithoutValidation(":path", path);
+                message.Headers.Add("apns-topic", settings.AppBundleIdentifier);
+                message.Headers.Add("apns-expiration", apnsExpiration.ToString());
+                message.Headers.Add("apns-priority", apnsPriority.ToString());
+                message.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // required for iOS 13+
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetJwtToken());
-            request.Headers.TryAddWithoutValidation(":method", "POST");
-            request.Headers.TryAddWithoutValidation(":path", path);
-            request.Headers.Add("apns-topic", settings.AppBundleIdentifier);
-            request.Headers.Add("apns-expiration", apnsExpiration.ToString());
-            request.Headers.Add("apns-priority", apnsPriority.ToString());
-            request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // required for iOS 13+
-
-            if (!string.IsNullOrWhiteSpace(apnsId))
-            {
-                request.Headers.Add(apnidHeader, apnsId);
-            }
-
-            using (var response = await http.SendAsync(request, cancellationToken))
-            {
-                var succeed = response.IsSuccessStatusCode;
-                var content = await response.Content.ReadAsStringAsync();
-                var error = JsonHelper.Deserialize<ApnsError>(content);
-
-                return new ApnsResponse
+                if (!string.IsNullOrWhiteSpace(apnsId))
                 {
-                    IsSuccess = succeed,
-                    Error = error
-                };
+                    message.Headers.Add(apnIdHeader, apnsId);
+                }
+
+                using (var response = await http.SendAsync(message, cancellationToken))
+                {
+                    var succeed = response.IsSuccessStatusCode;
+                    var content = await response.Content.ReadAsStringAsync();
+                    var error = JsonHelper.Deserialize<ApnsError>(content);
+
+                    return new ApnsResponse
+                    {
+                        IsSuccess = succeed,
+                        Error = error
+                    };
+                }
             }
         }
 

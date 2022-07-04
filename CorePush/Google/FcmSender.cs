@@ -21,8 +21,8 @@ namespace CorePush.Google
 
         public FcmSender(FcmSettings settings, HttpClient http)
         {
-            this.settings = settings;
-            this.http = http;
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.http = http ?? throw new ArgumentNullException(nameof(http));
 
             http.BaseAddress = http.BaseAddress ?? new Uri(fcmUrl);
         }
