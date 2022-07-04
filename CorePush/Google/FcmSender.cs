@@ -1,3 +1,4 @@
+using System;
 using CorePush.Interfaces;
 using CorePush.Utils;
 using Newtonsoft.Json.Linq;
@@ -13,7 +14,8 @@ namespace CorePush.Google
     /// </summary>
     public class FcmSender : IFcmSender
     {
-        private readonly string fcmUrl = "https://fcm.googleapis.com/fcm/send";
+        private const string fcmUrl = "https://fcm.googleapis.com/fcm/send";
+        
         private readonly FcmSettings settings;
         private readonly HttpClient http;
 
@@ -21,6 +23,8 @@ namespace CorePush.Google
         {
             this.settings = settings;
             this.http = http;
+
+            http.BaseAddress = http.BaseAddress ?? new Uri(fcmUrl);
         }
 
         /// <summary>
@@ -31,7 +35,8 @@ namespace CorePush.Google
         /// </summary>
         /// <param name="deviceId">Device token (will add `to` to the payload)</param>
         /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
-        /// <cref="HttpRequestException">Throws exception when not successful</exception>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
         public Task<FcmResponse> SendAsync(string deviceId, object payload, CancellationToken cancellationToken = default)
         {
             var jsonObject = JObject.FromObject(payload);
@@ -48,23 +53,25 @@ namespace CorePush.Google
         /// The SendAsync method will add/replace "to" value with deviceId
         /// </summary>
         /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
         public async Task<FcmResponse> SendAsync(object payload, CancellationToken cancellationToken = default)
         {
             var serialized = JsonHelper.Serialize(payload);
 
-            using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, fcmUrl))
+            using (var message = new HttpRequestMessage())
             {
-                httpRequest.Headers.Add("Authorization", $"key = {settings.ServerKey}");
+                message.Method = HttpMethod.Post;
+                message.Headers.Add("Authorization", $"key = {settings.ServerKey}");
 
                 if (!string.IsNullOrEmpty(settings.SenderId))
                 {
-                    httpRequest.Headers.Add("Sender", $"id = {settings.SenderId}");
+                    message.Headers.Add("Sender", $"id = {settings.SenderId}");
                 }
 
-                httpRequest.Content = new StringContent(serialized, Encoding.UTF8, "application/json");
+                message.Content = new StringContent(serialized, Encoding.UTF8, "application/json");
 
-                using (var response = await http.SendAsync(httpRequest, cancellationToken))
+                using (var response = await http.SendAsync(message, cancellationToken))
                 {
                     var responseString = await response.Content.ReadAsStringAsync();
 
