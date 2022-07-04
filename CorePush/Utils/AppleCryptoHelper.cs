@@ -1,5 +1,4 @@
-﻿
-using Org.BouncyCastle.Crypto.Parameters;	
+﻿using Org.BouncyCastle.Crypto.Parameters;	
 using Org.BouncyCastle.Security;
 using System;
 using System.Security.Cryptography;

@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -34,6 +35,7 @@ namespace CorePush.Apple
         /// Apple push notification sender constructor
         /// </summary>
         /// <param name="settings">Apple Push Notification settings</param>
+        /// <param name="http">HTTP client instance</param>
         public ApnSender(ApnSettings settings, HttpClient http)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -66,13 +68,13 @@ namespace CorePush.Apple
                 Content = new StringContent(json)
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", GetJwtToken());
+            request.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetJwtToken());
             request.Headers.TryAddWithoutValidation(":method", "POST");
             request.Headers.TryAddWithoutValidation(":path", path);
             request.Headers.Add("apns-topic", settings.AppBundleIdentifier);
             request.Headers.Add("apns-expiration", apnsExpiration.ToString());
             request.Headers.Add("apns-priority", apnsPriority.ToString());
-            request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // for iOS 13 required
+            request.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // required for iOS 13+
 
             if (!string.IsNullOrWhiteSpace(apnsId))
             {
@@ -108,10 +110,10 @@ namespace CorePush.Apple
         private string CreateJwtToken()
         {
             var header = JsonHelper.Serialize(new { alg = "ES256", kid = CleanP8Key(settings.P8PrivateKeyId) });
-            var payload = JsonHelper.Serialize(new { iss = settings.TeamId, iat = ToEpoch(DateTime.UtcNow) });
+            var payload = JsonHelper.Serialize(new { iss = settings.TeamId, iat = EpochTime() });
             var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
-            var payloadBasae64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
-            var unsignedJwtData = $"{headerBase64}.{payloadBasae64}";
+            var payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
+            var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
             using (var dsa = AppleCryptoHelper.GetEllipticCurveAlgorithm(CleanP8Key(settings.P8PrivateKey)))
@@ -121,7 +123,7 @@ namespace CorePush.Apple
             }
         }
 
-        private static int ToEpoch(DateTime time)
+        private static int EpochTime()
         {
             var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
             return Convert.ToInt32(span.TotalSeconds);
@@ -135,7 +137,7 @@ namespace CorePush.Apple
                 return p8Key;
             }
 
-            var lines = p8Key.Split(new [] { '\n' }).ToList();
+            var lines = p8Key.Split('\n').ToList();
 
             if (0 != lines.Count && lines[0].StartsWith("-----BEGIN PRIVATE KEY-----"))
             {

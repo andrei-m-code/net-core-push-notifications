@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <Title>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Title>
@@ -10,9 +10,9 @@
     <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>3.0.12</AssemblyVersion>
-    <FileVersion>3.0.12</FileVersion>
-    <Version>3.0.12</Version>
+    <AssemblyVersion>3.0.13</AssemblyVersion>
+    <FileVersion>3.0.13</FileVersion>
+    <Version>3.0.13</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
