@@ -41,7 +41,10 @@ namespace CorePush.Apple
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.http = http ?? throw new ArgumentNullException(nameof(http));
 
-            http.BaseAddress = http.BaseAddress ?? new Uri(servers[settings.ServerType]);
+            if (http.BaseAddress == null)
+            {
+                http.BaseAddress = new Uri(servers[settings.ServerType]);
+            }
         }
 
         /// <summary>

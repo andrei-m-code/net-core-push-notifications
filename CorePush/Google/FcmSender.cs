@@ -24,7 +24,10 @@ namespace CorePush.Google
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.http = http ?? throw new ArgumentNullException(nameof(http));
 
-            http.BaseAddress = http.BaseAddress ?? new Uri(fcmUrl);
+            if (http.BaseAddress == null)
+            {
+                http.BaseAddress = new Uri(fcmUrl);    
+            }
         }
 
         /// <summary>
