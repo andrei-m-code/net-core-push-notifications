@@ -6,7 +6,7 @@ Send notifications to:
 - ✅ **Android** - via Firebase Cloud Messaging (FCM)
 - ✅ **Web** - via Firebase Cloud Messaging (FCM)
 
-CorePush is a lightweight library with minimal overhead. Send notifications to Android and Web using Firebase Cloud Messaging and iOS APN with JWT HTTP/2 API.
+CorePush is a simple lightweight library with minimal overhead. Send notifications to Android and Web using Firebase Cloud Messaging and iOS APN with JWT HTTP/2 API.
 
 # Installation
 
