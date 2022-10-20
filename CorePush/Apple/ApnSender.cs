@@ -64,14 +64,21 @@ namespace CorePush.Apple
             bool isBackground = false,
             CancellationToken cancellationToken = default)
         {
-            var path = $"/3/device/{deviceToken}";
             var json = JsonHelper.Serialize(notification);
+            return await SendSerializedAsync(json, deviceToken, apnsId, apnsExpiration, apnsPriority, isBackground,
+                cancellationToken);
+        }
 
+        public async Task<ApnsResponse> SendSerializedAsync(string notification, string deviceToken, string apnsId = null,
+            int apnsExpiration = 0, int apnsPriority = 10, bool isBackground = false,
+            CancellationToken cancellationToken = default)
+        {
+            var path = $"/3/device/{deviceToken}";
             using (var message = new HttpRequestMessage(HttpMethod.Post, path))
             {
                 message.Version = new Version(2, 0);
-                message.Content = new StringContent(json);
-                
+                message.Content = new StringContent(notification);
+
                 message.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetJwtToken());
                 message.Headers.TryAddWithoutValidation(":method", "POST");
                 message.Headers.TryAddWithoutValidation(":path", path);
