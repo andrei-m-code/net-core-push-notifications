@@ -69,6 +69,13 @@ namespace CorePush.Apple
                 cancellationToken);
         }
 
+        /// <summary>
+        /// Sends a raw JSON string notification to APN. Please see how your message should be formatted here:
+        /// https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1
+        /// !IMPORTANT: If you send many messages at once, make sure to retry those calls. Apple typically doesn't like
+        /// to receive too many requests and may occasionally respond with HTTP 429. Just try/catch this call and retry as needed.
+        /// </summary>
+        /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
         public async Task<ApnsResponse> SendSerializedAsync(string notification, string deviceToken, string apnsId = null,
             int apnsExpiration = 0, int apnsPriority = 10, bool isBackground = false,
             CancellationToken cancellationToken = default)
