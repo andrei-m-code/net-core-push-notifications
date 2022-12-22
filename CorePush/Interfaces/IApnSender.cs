@@ -12,7 +12,7 @@ namespace CorePush.Interfaces
             string apnsId = null,
             int apnsExpiration = 0,
             int apnsPriority = 10,
-            bool isBackground = false,
+            ApnPushType apnPushType = ApnPushType.Alert,
             CancellationToken cancellationToken = default);
     }
 }
