@@ -70,7 +70,7 @@ namespace CorePush.Apple
             string apnsId = null,
             int apnsExpiration = 0,
             int apnsPriority = 10,
-            bool isBackground = false,
+            ApnPushType apnPushType = ApnPushType.Alert,
             CancellationToken cancellationToken = default)
         {
             var path = $"/3/device/{deviceToken}";
@@ -87,7 +87,7 @@ namespace CorePush.Apple
             message.Headers.Add("apns-topic", settings.AppBundleIdentifier);
             message.Headers.Add("apns-expiration", apnsExpiration.ToString());
             message.Headers.Add("apns-priority", apnsPriority.ToString());
-            message.Headers.Add("apns-push-type", isBackground ? "background" : "alert"); // required for iOS 13+
+            message.Headers.Add("apns-push-type", apnPushType.ToString().ToLowerInvariant()); // required for iOS 13+
 
             if (!string.IsNullOrWhiteSpace(apnsId))
             {
