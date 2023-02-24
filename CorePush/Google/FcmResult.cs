@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace CorePush.Google
 {
     public class FcmResult
     {
-        [JsonProperty("message_id")]
+        [JsonPropertyName("message_id")]
         public string MessageId { get; set; }
 
-        [JsonProperty("registration_id")]
+        [JsonPropertyName("registration_id")]
         public string RegistrationId { get; set; }
 
         public string Error { get; set; }
