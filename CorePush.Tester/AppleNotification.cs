@@ -1,5 +1,5 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace CorePush.Tester
 {
@@ -9,17 +9,17 @@ namespace CorePush.Tester
         {
             public class Alert
             {
-                [JsonProperty("title")]
+                [JsonPropertyName("title")]
                 public string Title { get; set; }
 
-                [JsonProperty("body")]
+                [JsonPropertyName("body")]
                 public string Body { get; set; }
             }
 
-            [JsonProperty("alert")]
+            [JsonPropertyName("alert")]
             public Alert AlertBody { get; set; }
 
-            [JsonProperty("apns-push-type")]
+            [JsonPropertyName("apns-push-type")]
             public string PushType { get; set; } = "alert";
         }
 
@@ -37,10 +37,10 @@ namespace CorePush.Tester
             };
         }
 
-        [JsonProperty("aps")]
+        [JsonPropertyName("aps")]
         public ApsPayload Aps { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public Guid Id { get; set; }
     }
 }

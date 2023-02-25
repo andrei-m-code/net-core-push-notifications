@@ -1,14 +1,14 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CorePush.Google
 {
     public class FcmResponse
     {
-        [JsonProperty("multicast_id")]
+        [JsonPropertyName("multicast_id")]
         public string MulticastId { get; set; }
 
-        [JsonProperty("canonical_ids")]
+        [JsonPropertyName("canonical_ids")]
         public int CanonicalIds { get; set; }
 
         /// <summary>

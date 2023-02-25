@@ -72,7 +72,7 @@ namespace CorePush.Tester
                 notification = new { body = "Hello World!" }
             };
 
-            var response = await fcm.SendAsync(fcmReceiverToken, payload);
+            var response = await fcm.SendAsync(payload);
         }
     }
 }

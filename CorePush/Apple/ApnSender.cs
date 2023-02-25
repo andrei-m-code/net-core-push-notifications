@@ -1,6 +1,4 @@
-﻿using CorePush.Interfaces;
-using CorePush.Utils;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +9,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using CorePush.Interfaces;
+using CorePush.Utils;
+using CorePush.Serialization;
+
 namespace CorePush.Apple
 {
     /// <summary>
@@ -18,8 +20,8 @@ namespace CorePush.Apple
     /// </summary>
     public class ApnSender : IApnSender
     {
-        private static readonly ConcurrentDictionary<string, Tuple<string, DateTime>> tokens = new ConcurrentDictionary<string, Tuple<string, DateTime>>();
-        private static readonly Dictionary<ApnServerType, string> servers = new Dictionary<ApnServerType, string>
+        private static readonly ConcurrentDictionary<string, Tuple<string, DateTime>> tokens = new();
+        private static readonly Dictionary<ApnServerType, string> servers = new()
         {
             {ApnServerType.Development, "https://api.development.push.apple.com:443" },
             {ApnServerType.Production, "https://api.push.apple.com:443" }
@@ -30,17 +32,24 @@ namespace CorePush.Apple
 
         private readonly ApnSettings settings;
         private readonly HttpClient http;
+        private readonly IJsonSerializer serializer;
 
+        public ApnSender(ApnSettings settings, HttpClient http) : this(settings, http, new DefaultJsonSerializer())
+        {
+        }
+        
         /// <summary>
         /// Apple push notification sender constructor
         /// </summary>
         /// <param name="settings">Apple Push Notification settings</param>
         /// <param name="http">HTTP client instance</param>
-        public ApnSender(ApnSettings settings, HttpClient http)
+        /// <param name="serializer">JSON serializer</param>
+        public ApnSender(ApnSettings settings, HttpClient http, IJsonSerializer serializer)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.http = http ?? throw new ArgumentNullException(nameof(http));
-
+            this.serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            
             if (http.BaseAddress == null)
             {
                 http.BaseAddress = new Uri(servers[settings.ServerType]);
@@ -65,39 +74,37 @@ namespace CorePush.Apple
             CancellationToken cancellationToken = default)
         {
             var path = $"/3/device/{deviceToken}";
-            var json = JsonHelper.Serialize(notification);
+            var json = serializer.Serialize(notification);
 
-            using (var message = new HttpRequestMessage(HttpMethod.Post, path))
-            {
-                message.Version = new Version(2, 0);
-                message.Content = new StringContent(json);
+            using var message = new HttpRequestMessage(HttpMethod.Post, path);
+            
+            message.Version = new Version(2, 0);
+            message.Content = new StringContent(json);
                 
-                message.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetJwtToken());
-                message.Headers.TryAddWithoutValidation(":method", "POST");
-                message.Headers.TryAddWithoutValidation(":path", path);
-                message.Headers.Add("apns-topic", settings.AppBundleIdentifier);
-                message.Headers.Add("apns-expiration", apnsExpiration.ToString());
-                message.Headers.Add("apns-priority", apnsPriority.ToString());
-                message.Headers.Add("apns-push-type", apnPushType.ToString().ToLowerInvariant()); // required for iOS 13+
+            message.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetJwtToken());
+            message.Headers.TryAddWithoutValidation(":method", "POST");
+            message.Headers.TryAddWithoutValidation(":path", path);
+            message.Headers.Add("apns-topic", settings.AppBundleIdentifier);
+            message.Headers.Add("apns-expiration", apnsExpiration.ToString());
+            message.Headers.Add("apns-priority", apnsPriority.ToString());
+            message.Headers.Add("apns-push-type", apnPushType.ToString().ToLowerInvariant()); // required for iOS 13+
 
-                if (!string.IsNullOrWhiteSpace(apnsId))
-                {
-                    message.Headers.Add(apnIdHeader, apnsId);
-                }
-
-                using (var response = await http.SendAsync(message, cancellationToken))
-                {
-                    var succeed = response.IsSuccessStatusCode;
-                    var content = await response.Content.ReadAsStringAsync();
-                    var error = JsonHelper.Deserialize<ApnsError>(content);
-
-                    return new ApnsResponse
-                    {
-                        IsSuccess = succeed,
-                        Error = error
-                    };
-                }
+            if (!string.IsNullOrWhiteSpace(apnsId))
+            {
+                message.Headers.Add(apnIdHeader, apnsId);
             }
+
+            using var response = await http.SendAsync(message, cancellationToken);
+            
+            var succeed = response.IsSuccessStatusCode;
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var error = serializer.Deserialize<ApnsError>(content);
+
+            return new ApnsResponse
+            {
+                IsSuccess = succeed,
+                Error = error
+            };
         }
 
         private string GetJwtToken()
@@ -114,18 +121,17 @@ namespace CorePush.Apple
 
         private string CreateJwtToken()
         {
-            var header = JsonHelper.Serialize(new { alg = "ES256", kid = CleanP8Key(settings.P8PrivateKeyId) });
-            var payload = JsonHelper.Serialize(new { iss = settings.TeamId, iat = EpochTime() });
+            var header = serializer.Serialize(new { alg = "ES256", kid = CleanP8Key(settings.P8PrivateKeyId) });
+            var payload = serializer.Serialize(new { iss = settings.TeamId, iat = EpochTime() });
             var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
             var payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
             var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
             var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
-            using (var dsa = AppleCryptoHelper.GetEllipticCurveAlgorithm(CleanP8Key(settings.P8PrivateKey)))
-            {
-                var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-                return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
-            }
+            using var dsa = AppleCryptoHelper.GetEllipticCurveAlgorithm(CleanP8Key(settings.P8PrivateKey));
+            
+            var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
+            return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
         }
 
         private static int EpochTime()
@@ -149,7 +155,7 @@ namespace CorePush.Apple
                 lines.RemoveAt(0);
             }
 
-            if (0 != lines.Count && lines[lines.Count - 1].StartsWith("-----END PRIVATE KEY-----"))
+            if (0 != lines.Count && lines[^1].StartsWith("-----END PRIVATE KEY-----"))
             {
                 lines.RemoveAt(lines.Count - 1);
             }
