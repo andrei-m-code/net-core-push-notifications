@@ -53,12 +53,24 @@ services.AddSingleton(fcmSettings);
 
 # Firebase Cloud Messages for Android, iOS and Web
 
-For Firebase messages (FCM) we will need a project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
+To start sending Firebase messages you need to have Google Project ID and JWT Bearer token. Steps to generate JWT bearer token:
+1. Enable HTTP v1 API if you haven't done it yet. Go here for instructions: https://console.firebase.google.com/project/[YOUR_GOOGLE_PROJECT_ID e.g. my-project-123456]/settings/cloudmessaging/
+2. From that page you can also go to "Manage Service Accounts". Here is the link: https://console.cloud.google.com/iam-admin/serviceaccounts and select your project.
+3. Create Service Account with "Firebase Service Management Service Agent" role.
+4. Download Service Account JSON file.
+5. Use Utils from the tester project to generate JWT bearer token.
+
+Sending messages is very simple so long as you know the format:
 
 ```csharp
 var fcm = new FirebaseSender(settings, httpClient);
 await fcm.SendAsync(payload);
 ```
+Useful links:
+- Message formats: https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
+- Migrating from legacy API: https://firebase.google.com/docs/cloud-messaging/migrate-v1
+
+## Firebase iOS notifications
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
 The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications. Please note, we are setting the "to" property to use device token, so you don't have to do it yourself.
 
