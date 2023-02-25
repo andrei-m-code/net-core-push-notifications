@@ -12,7 +12,7 @@
 
     <AssemblyVersion>4.0.0</AssemblyVersion>
     <FileVersion>4.0.0</FileVersion>
-    <Version>4.0.0-beta01</Version>
+    <Version>4.0.0</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
@@ -28,6 +28,7 @@
 v4.0.0
 - Use .NET 7.0 as a target framework
 - Use System.Text.Json as a default serializer
+- [BREAKING CHANGE] Firebase Messaging uses HTTP v1 API
       
 v3.1.x 
 - Memory optimizations
