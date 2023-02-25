@@ -12,6 +12,7 @@ CorePush is a simple lightweight library with minimal overhead. Send notificatio
 
 ## NuGet Package
 
+Version 4.0.0+ requires .NET7.0. For earler versions please use 3.1.1 as it's targeting netstandard2.0. 
 The easiest way to get started with CorePush is to use [nuget](https://www.nuget.org/packages/CorePush) package.
 
 dotnet cli:
