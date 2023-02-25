@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <Title>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Title>
@@ -10,8 +10,8 @@
     <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>4.0.0-beta01</AssemblyVersion>
-    <FileVersion>4.0.0-beta01</FileVersion>
+    <AssemblyVersion>4.0.0</AssemblyVersion>
+    <FileVersion>4.0.0</FileVersion>
     <Version>4.0.0-beta01</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
@@ -26,7 +26,7 @@
 
     <PackageReleaseNotes>
 v4.0.0
-- Use .NET 6.0 as a target framework
+- Use .NET 7.0 as a target framework
 - Use System.Text.Json as a default serializer
       
 v3.1.x 

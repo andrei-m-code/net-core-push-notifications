@@ -20,6 +20,14 @@ namespace CorePush.Serialization
             return obj;
         }
 
-        protected virtual JsonSerializerOptions GetJsonSerializerOptions() => new();
+        protected virtual JsonSerializerOptions GetJsonSerializerOptions()
+        {
+            var settings = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            
+            return settings;
+        }
     }
 }
