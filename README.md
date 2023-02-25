@@ -74,6 +74,41 @@ Useful links:
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
 The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications. Please note, we are setting the "to" property to use device token, so you don't have to do it yourself.
 
+## Firebase Notification Payload Example
+
+```json
+{
+  "message":{
+     "token":"bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvD this is DEVICE_TOKEN",
+     "notification":{
+       "title":"Match update",
+       "body":"Arsenal goal in added time, score is now 3-0"
+     },
+     "android":{
+       "ttl":"86400s",
+       "notification"{
+         "click_action":"OPEN_ACTIVITY_1"
+       }
+     },
+     "apns": {
+       "headers": {
+         "apns-priority": "5",
+       },
+       "payload": {
+         "aps": {
+           "category": "NEW_MESSAGE_CATEGORY"
+         }
+       }
+     },
+     "webpush":{
+       "headers":{
+         "TTL":"86400"
+       }
+     }
+   }
+ }
+```
+
 # Apple Push Notifications
 
 To send notifications to Apple devices you have to create a publisher profile and pass settings object with necessary parameters to ApnSender constructor. Apn Sender will create and sign JWT token and attach it to every request to Apple servers:
@@ -92,26 +127,10 @@ await apn.SendAsync(notification, deviceToken);
 Please see Apple notification format examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
 Tip: To send properties like {"content-available": true} you can use Newtonsoft.Json attributes over C# properties like `[JsonProperty("content-available")]`.
 
-## Examples of notification payload
-You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS and Android:
+## Example of notification payload
+You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS:
 
 ```csharp
-public class GoogleNotification
-{
-    public class DataPayload
-    {
-        // Add your custom properties as needed
-        [JsonProperty("message")]
-        public string Message { get; set; }
-    }
-
-    [JsonProperty("priority")]
-    public string Priority { get; set; } = "high";
-
-    [JsonProperty("data")]
-    public DataPayload Data { get; set; }
-}
-
 public class AppleNotification
 {
     public class ApsPayload
@@ -127,10 +146,6 @@ public class AppleNotification
 }
 ```
 Use `[JsonProperty("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
-
-# Known Issues
-
-* Doesn't seem like it's running on Mono [#55](https://github.com/andrei-m-code/net-core-push-notifications/issues/55) (Help Wanted!).
 
 # MIT License
 
