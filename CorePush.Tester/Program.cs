@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using CorePush.Apple;
-using CorePush.Google;
+using CorePush.Firebase;
 
 namespace CorePush.Tester
 {
@@ -15,21 +16,26 @@ namespace CorePush.Tester
         private const string apnP8PrivateKeyId = "TODO";
         private const string apnTeamId = "TODO";
         private const string apnDeviceToken = "TODO";
-        private const ApnServerType apnServerType = ApnServerType.Development;
+        private const ApnServerType apnServerType = ApnServerType.Production;
 
         #endregion
 
         #region FCM Sender Settings
+        
+        private const string googleProjectId = "TODO";
+        private const string fcmBearerToken = "TODO";
         private const string fcmReceiverToken = "TODO";
-        private const string fcmSenderId = "TODO";
-        private const string fcmServerKey = "TODO";
-
+        
         # endregion
 
-        private static readonly HttpClient http = new HttpClient();
+        private static readonly HttpClient http = new();
 
         static async Task Main()
         {
+            // var serviceAccountJsonFilepath ="path-to-your-service-account-json-file/yourproject-123456-e883841.json";
+            // await Utils.GenerateFirebaseJWTAsync(serviceAccountJsonFilepath);
+            // await Utils.SendNotificationViaFirebaseSDKAsync(serviceAccountJsonFilepath, fcmReceiverToken);
+
             //await SendApnNotificationAsync();
             //await SendFcmNotificationAsync();
 
@@ -60,16 +66,24 @@ namespace CorePush.Tester
 
         private static async Task SendFcmNotificationAsync()
         {
-            var settings = new FcmSettings
+            var settings = new FirebaseSettings
             {
-                SenderId = fcmSenderId,
-                ServerKey = fcmServerKey
+                GoogleProjectId = googleProjectId,
+                FcmBearerToken = fcmBearerToken
             };
 
-            var fcm = new FcmSender(settings, http);
-            var payload = new 
+            var fcm = new FirebaseSender(settings, http);
+            var payload = new FirebasePayload
             {
-                notification = new { body = "Hello World!" }
+                Message = new FirebaseMessage
+                {
+                    Token = fcmReceiverToken,
+                    Notification = new FirebaseNotification
+                    {
+                        Title = "Test",
+                        Body = "Test Body"
+                    }
+                }
             };
 
             var response = await fcm.SendAsync(payload);

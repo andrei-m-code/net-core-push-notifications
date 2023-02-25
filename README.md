@@ -26,12 +26,12 @@ Install-Package CorePush
 
 ## Setup for ASP.NET Core with Dependency Injection
 
-Both `ApnSender` and `FcmSender` have dependencies that need to be registered in order to enable DI.
+Both `ApnSender` and `FirebaseSender` have dependencies that need to be registered in order to enable DI.
 
 1. Register HttpClient in Startup.cs. This will allow injection of HttpClient into the FCM and APN senders:
 
 ```
-services.AddHttpClient<FcmSender>();
+services.AddHttpClient<FirebaseSender>();
 services.AddHttpClient<ApnSender>();
 ```
 
@@ -56,8 +56,8 @@ services.AddSingleton(fcmSettings);
 For Firebase messages (FCM) we will need a project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
 
 ```csharp
-var fcm = new FcmSender(settings, httpClient);
-await fcm.SendAsync(deviceToken, notification);
+var fcm = new FirebaseSender(settings, httpClient);
+await fcm.SendAsync(payload);
 ```
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
 The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications. Please note, we are setting the "to" property to use device token, so you don't have to do it yourself.
