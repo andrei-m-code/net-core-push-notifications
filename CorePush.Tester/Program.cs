@@ -1,92 +1,86 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 using CorePush.Apple;
 using CorePush.Firebase;
+using CorePush.Serialization;
 
-namespace CorePush.Tester
+namespace CorePush.Tester;
+
+class Program
 {
-    class Program
+    #region Apn Sender Settings
+
+    private const string apnBundleId = "TODO";
+    private const string apnP8PrivateKey = "TODO";
+    private const string apnP8PrivateKeyId = "TODO";
+    private const string apnTeamId = "TODO";
+    private const string apnDeviceToken = "TODO";
+    private const ApnServerType apnServerType = ApnServerType.Production;
+
+    #endregion
+
+    #region FCM Sender Settings
+        
+    private const string fcmServiceAccountFilename = "TODO";
+    private const string fcmReceiverToken = "TODO";
+        
+    # endregion
+
+    private static readonly HttpClient http = new();
+
+    static async Task Main()
     {
-        #region Apn Sender Settings
+        //await SendApnNotificationAsync();
+        await SendFcmNotificationAsync();
 
-        private const string apnBundleId = "TODO";
-        private const string apnP8PrivateKey = "TODO";
-        private const string apnP8PrivateKeyId = "TODO";
-        private const string apnTeamId = "TODO";
-        private const string apnDeviceToken = "TODO";
-        private const ApnServerType apnServerType = ApnServerType.Production;
+        Console.WriteLine("Done!");
+    }
 
-        #endregion
-
-        #region FCM Sender Settings
-        
-        private const string googleProjectId = "TODO";
-        private const string fcmBearerToken = "TODO";
-        private const string fcmReceiverToken = "TODO";
-        
-        # endregion
-
-        private static readonly HttpClient http = new();
-
-        static async Task Main()
+    private static async Task SendApnNotificationAsync()
+    {
+        var settings = new ApnSettings
         {
-            // var serviceAccountJsonFilepath ="path-to-your-service-account-json-file/yourproject-123456-e883841.json";
-            // await Utils.GenerateFirebaseJWTAsync(serviceAccountJsonFilepath);
-            // await Utils.SendNotificationViaFirebaseSDKAsync(serviceAccountJsonFilepath, fcmReceiverToken);
+            AppBundleIdentifier = apnBundleId,
+            P8PrivateKey = apnP8PrivateKey,
+            P8PrivateKeyId = apnP8PrivateKeyId,
+            TeamId = apnTeamId,
+            ServerType = apnServerType,
+        };
 
-            //await SendApnNotificationAsync();
-            //await SendFcmNotificationAsync();
-
-            Console.WriteLine("Done!");
+        while (true)
+        {
+            var apn = new ApnSender(settings, http);
+            var payload = new AppleNotification(
+                Guid.NewGuid(), 
+                "Hello World (Message)",
+                "Hello World (Title)");
+            var response = await apn.SendAsync(payload, apnDeviceToken);
         }
+    }
 
-        private static async Task SendApnNotificationAsync()
+    private static async Task SendFcmNotificationAsync()
+    {
+        var contents = await File.ReadAllTextAsync(fcmServiceAccountFilename);
+        var serializer = new DefaultCorePushJsonSerializer();
+        var settings = serializer.Deserialize<FirebaseSettings>(contents);
+            
+        var fcm = new FirebaseSender(settings, http);
+        var payload = new FirebasePayload
         {
-            var settings = new ApnSettings
+            Message = new FirebaseMessage
             {
-                AppBundleIdentifier = apnBundleId,
-                P8PrivateKey = apnP8PrivateKey,
-                P8PrivateKeyId = apnP8PrivateKeyId,
-                TeamId = apnTeamId,
-                ServerType = apnServerType,
-            };
-
-            while (true)
-            {
-                var apn = new ApnSender(settings, http);
-                var payload = new AppleNotification(
-                    Guid.NewGuid(), 
-                    "Hello World (Message)",
-                    "Hello World (Title)");
-                var response = await apn.SendAsync(payload, apnDeviceToken);
-            }
-        }
-
-        private static async Task SendFcmNotificationAsync()
-        {
-            var settings = new FirebaseSettings
-            {
-                GoogleProjectId = googleProjectId,
-                FcmBearerToken = fcmBearerToken
-            };
-
-            var fcm = new FirebaseSender(settings, http);
-            var payload = new FirebasePayload
-            {
-                Message = new FirebaseMessage
+                Token = fcmReceiverToken,
+                Notification = new FirebaseNotification
                 {
-                    Token = fcmReceiverToken,
-                    Notification = new FirebaseNotification
-                    {
-                        Title = "Test",
-                        Body = "Test Body"
-                    }
+                    Title = "Test",
+                    Body = "Test Body"
                 }
-            };
-
-            var response = await fcm.SendAsync(payload);
-        }
+            }
+        };
+        
+        var response = await fcm.SendAsync(payload);
     }
 }

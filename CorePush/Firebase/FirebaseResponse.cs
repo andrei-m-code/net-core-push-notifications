@@ -1,7 +1,6 @@
-﻿namespace CorePush.Firebase
+﻿namespace CorePush.Firebase;
+
+public class FirebaseResponse
 {
-    public class FirebaseResponse
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

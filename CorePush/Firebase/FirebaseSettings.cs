@@ -1,15 +1,10 @@
-namespace CorePush.Firebase
-{
-    public class FirebaseSettings
-    {
-        /// <summary>
-        /// Google Project ID. E.g. your-project-123456
-        /// </summary>
-        public string GoogleProjectId { get; set; }
+using System.Text.Json.Serialization;
 
-        /// <summary>
-        /// FCM Service Account Bearer Token
-        /// </summary>
-        public string FcmBearerToken { get; set; }
-    }
-}
+namespace CorePush.Firebase;
+
+public record FirebaseSettings(
+    [property: JsonPropertyName("project_id")] string ProjectId,
+    [property: JsonPropertyName("private_key")] string PrivateKey,
+    [property: JsonPropertyName("client_email")] string ClientEmail,
+    [property: JsonPropertyName("token_uri")] string TokenUri
+);

@@ -1,9 +1,8 @@
-namespace CorePush.Apple
+namespace CorePush.Apple;
+
+public enum ApnPushType
 {
-    public enum ApnPushType
-    {
-        Background,
-        Alert,
-        Voip
-    }
+    Background,
+    Alert,
+    Voip
 }

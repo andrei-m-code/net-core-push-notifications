@@ -3,10 +3,9 @@ using System.Threading.Tasks;
 
 using CorePush.Firebase;
 
-namespace CorePush.Interfaces
+namespace CorePush.Interfaces;
+
+public interface IFirebaseSender
 {
-    public interface IFirebaseSender
-    {
-        Task<FirebaseResponse> SendAsync(object payload, CancellationToken cancellationToken = default);
-    }
+    Task<FirebaseResponse> SendAsync(object payload, CancellationToken cancellationToken = default);
 }

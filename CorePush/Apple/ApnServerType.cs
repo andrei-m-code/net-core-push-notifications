@@ -1,8 +1,7 @@
-﻿namespace CorePush.Apple
+﻿namespace CorePush.Apple;
+
+public enum ApnServerType
 {
-    public enum ApnServerType
-    {
-        Development,
-        Production
-    }
+    Development,
+    Production
 }
