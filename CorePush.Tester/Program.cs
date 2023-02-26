@@ -24,8 +24,8 @@ class Program
 
     #region FCM Sender Settings
         
-    private const string fcmServiceAccountFilename = "/Users/andrei/Projects/FCMTokens/mobileinstein-174121-e899c9a53553-new.json";
-    private const string fcmReceiverToken = "dAaOttQ1SlmtlP_b5yli5K:APA91bGDVKu8vk1a9_BG7KRcMI4YVPYqT7yZ4VXXZ7eiWu4vr1FYOf2-1LBTLae3PjscNPvSWtJZ03iE6mTrWNYFEoJy3QgwDUgMR7Mo0GJdXGj4eGlUEcIugKHub5Js122_8ox6n8RP";
+    private const string fcmServiceAccountFilename = "TODO";
+    private const string fcmReceiverToken = "TODO";
 
     # endregion
 
