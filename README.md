@@ -121,33 +121,6 @@ public class AppleNotification
 ```
 Use `[JsonProperty("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
 
-# Setup for ASP.NET Core with Dependency Injection
-
-Both `ApnSender` and `FirebaseSender` have dependencies that need to be registered in order to enable DI.
-
-1. Register HttpClient in Startup.cs. This will allow injection of HttpClient into the FCM and APN senders:
-
-```
-services.AddHttpClient<FirebaseSender>();
-services.AddHttpClient<ApnSender>();
-```
-
-2. Register settings object as a singleton:
-
-If you've added `ApnSettings` and `FirebaseSettings` into a configuration section, you can bind section directly to settings object from `IConfiguration` available in Startup.cs:
-
-```
-var section = configuration.GetSection("ApnSettings");
-var settings = new AppSettings();
-section.Bind(settings);
-```
-
-Add settings to services:
-```
-services.AddSingleton(apnSettings);
-services.AddSingleton(fcmSettings);
-```
-
 # MIT License
 
 Copyright (c) 2020 Andrei M
