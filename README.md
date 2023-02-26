@@ -1,5 +1,7 @@
 [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
+⚠️ There are issues with expiring JWT token that I'm dealing with starting from v4.0.0.
+
 # .NET Core Push Notifications for Web, Android and iOS
 Send notifications to:
 - ✅ **iOS** - Apple Push Notifications (APN)
