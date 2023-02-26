@@ -25,6 +25,8 @@ Package Manager Console:
 Install-Package CorePush
 ```
 
+Check out Tester project [Program.cs](https://github.com/andrei-m-code/net-core-push-notifications/blob/master/CorePush.Tester/Program.cs) for a quick getting started.
+
 # Firebase Cloud Messages for Android, iOS and Web
 
 To start sending Firebase messages you need to have Google Project ID and JWT Bearer token. Steps to generate JWT bearer token:
