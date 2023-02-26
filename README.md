@@ -28,10 +28,10 @@ Install-Package CorePush
 # Firebase Cloud Messages for Android, iOS and Web
 
 To start sending Firebase messages you need to have Google Project ID and JWT Bearer token. Steps to generate JWT bearer token:
-1. Enable HTTP v1 API if you haven't done it yet. Go here for instructions: https://console.firebase.google.com/project/[YOUR_GOOGLE_PROJECT_ID e.g. my-project-123456]/settings/cloudmessaging/
+1. Enable HTTP v1 API if you haven't done it yet. Go here for instructions: https://console.firebase.google.com/project/YOUR-GOOGLE-PROJECT-ID/settings/cloudmessaging/ Your project ID looks like this: my-project-123456.
 2. From that page you can also go to "Manage Service Accounts". Here is the link: https://console.cloud.google.com/iam-admin/serviceaccounts and select your project.
 3. Create Service Account with "Firebase Service Management Service Agent" role.
-4. Download Service Account JSON file and use it to configure FirebaseSender.
+4. Download Service Account JSON file and use it to configure FirebaseSender either by deserializing it into FirebaseSettings or by directly passing json string into the constructor.
 
 Sending messages is very simple so long as you know the format:
 
