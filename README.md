@@ -1,7 +1,5 @@
 [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
-⚠️ There are issues with expiring JWT token that I'm dealing with starting from v4.0.0.
-
 # .NET Core Push Notifications for Web, Android and iOS
 Send notifications to:
 - ✅ **iOS** - Apple Push Notifications (APN)
@@ -14,7 +12,7 @@ CorePush is a simple lightweight library with minimal overhead. Send notificatio
 
 ## NuGet Package
 
-Version 4.0.0+ requires .NET7.0. For earler versions please use v3.1.1 of the library as it's targeting netstandard2.0. 
+Version 4.0.0+ requires .NET7.0. For earlier versions please use v3.1.1 of the library as it's targeting netstandard2.0, though please note, it uses legacy FCM send API. 
 The easiest way to get started with CorePush is to use [nuget](https://www.nuget.org/packages/CorePush) package.
 
 dotnet cli:
@@ -33,13 +31,13 @@ To start sending Firebase messages you need to have Google Project ID and JWT Be
 1. Enable HTTP v1 API if you haven't done it yet. Go here for instructions: https://console.firebase.google.com/project/[YOUR_GOOGLE_PROJECT_ID e.g. my-project-123456]/settings/cloudmessaging/
 2. From that page you can also go to "Manage Service Accounts". Here is the link: https://console.cloud.google.com/iam-admin/serviceaccounts and select your project.
 3. Create Service Account with "Firebase Service Management Service Agent" role.
-4. Download Service Account JSON file.
-5. Use Utils from the tester project to generate JWT bearer token.
+4. Download Service Account JSON file and use it to configure FirebaseSender.
 
 Sending messages is very simple so long as you know the format:
 
 ```csharp
-var fcm = new FirebaseSender(settings, httpClient);
+var firebaseSettingsJson = await File.ReadAllTextAsync('./link/to/my-project-123345-e12345.json');
+var fcm = new FirebaseSender(firebaseSettingsJson, httpClient);
 await fcm.SendAsync(payload);
 ```
 Useful links:

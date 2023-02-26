@@ -33,8 +33,8 @@ class Program
 
     static async Task Main()
     {
-        //await SendApnNotificationAsync();
-        await SendFcmNotificationAsync();
+        // await SendApnNotificationAsync();
+        // await SendFcmNotificationAsync();
 
         Console.WriteLine("Done!");
     }
