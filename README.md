@@ -100,8 +100,8 @@ await apn.SendAsync(notification, deviceToken);
 ```
 **IMPORTANT**: Initialize 1 ApnSender per bundle. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
 
-Please see Apple notification format examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
-Tip: To send properties like {"content-available": true} you can use Newtonsoft.Json attributes over C# properties like `[JsonProperty("content-available")]`.
+Please see Apple notification payload examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
+Tip: To send properties like {"content-available": true} you can use System.Text.Json attributes over C# properties like `[JsonPropertyName("content-available")]`.
 
 ## Example of notification payload
 You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS:
@@ -111,17 +111,17 @@ public class AppleNotification
 {
     public class ApsPayload
     {
-        [JsonProperty("alert")]
+        [JsonPropertyName("alert")]
         public string AlertBody { get; set; }
     }
 
     // Your custom properties as needed
 
-    [JsonProperty("aps")]
+    [JsonPropertyName("aps")]
     public ApsPayload Aps { get; set; }
 }
 ```
-Use `[JsonProperty("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
+Use `[JsonPropertyName("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
 
 # MIT License
 
