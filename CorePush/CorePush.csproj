@@ -10,9 +10,9 @@
     <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>4.0.2</AssemblyVersion>
-    <FileVersion>4.0.2</FileVersion>
-    <Version>4.0.2</Version>
+    <AssemblyVersion>4.1.0</AssemblyVersion>
+    <FileVersion>4.1.0</FileVersion>
+    <Version>4.1.0</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
@@ -25,6 +25,12 @@
     <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
 
     <PackageReleaseNotes>
+v4.1.0
+- Bugfixing issues with APNS response handling
+      
+v4.0.2
+- Issues with Firebase configuration      
+      
 v4.0.1
 - Use .NET 7.0 as a target framework
 - Use System.Text.Json as a default serializer
