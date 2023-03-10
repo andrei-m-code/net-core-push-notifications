@@ -2,9 +2,9 @@
 
 # .NET Core Push Notifications for Web, Android and iOS
 Send notifications to:
-- ✅ **iOS** - Apple Push Notifications (APN)
-- ✅ **Android** - via Firebase Cloud Messaging (FCM)
-- ✅ **Web** - via Firebase Cloud Messaging (FCM)
+- ✅ **iOS** - Apple Push Notifications (via Latest Apple Push Notifications HTTP2 JWT API)
+- ✅ **Android** - via Firebase Cloud Messaging (via Latest Firebase HTTP v1 API)
+- ✅ **Web** - via Firebase Cloud Messaging (via Latest Firebase HTTP v1 API)
 
 CorePush is a simple lightweight library with minimal overhead. Send notifications to Android and Web using Firebase Cloud Messaging and iOS APN with JWT HTTP/2 API.
 
@@ -25,13 +25,15 @@ Package Manager Console:
 Install-Package CorePush
 ```
 
+Check out Tester project [Program.cs](https://github.com/andrei-m-code/net-core-push-notifications/blob/master/CorePush.Tester/Program.cs) for a quick getting started.
+
 # Firebase Cloud Messages for Android, iOS and Web
 
 To start sending Firebase messages you need to have Google Project ID and JWT Bearer token. Steps to generate JWT bearer token:
-1. Enable HTTP v1 API if you haven't done it yet. Go here for instructions: https://console.firebase.google.com/project/[YOUR_GOOGLE_PROJECT_ID e.g. my-project-123456]/settings/cloudmessaging/
+1. Enable HTTP v1 API if you haven't done it yet. Go here for instructions: https://console.firebase.google.com/project/YOUR-GOOGLE-PROJECT-ID/settings/cloudmessaging/ Your project ID looks like this: my-project-123456.
 2. From that page you can also go to "Manage Service Accounts". Here is the link: https://console.cloud.google.com/iam-admin/serviceaccounts and select your project.
 3. Create Service Account with "Firebase Service Management Service Agent" role.
-4. Download Service Account JSON file and use it to configure FirebaseSender.
+4. Download Service Account JSON file and use it to configure FirebaseSender either by deserializing it into FirebaseSettings or by directly passing json string into the constructor.
 
 Sending messages is very simple so long as you know the format:
 
@@ -98,8 +100,8 @@ await apn.SendAsync(notification, deviceToken);
 ```
 **IMPORTANT**: Initialize 1 ApnSender per bundle. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
 
-Please see Apple notification format examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
-Tip: To send properties like {"content-available": true} you can use Newtonsoft.Json attributes over C# properties like `[JsonProperty("content-available")]`.
+Please see Apple notification payload examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
+Tip: To send properties like {"content-available": true} you can use System.Text.Json attributes over C# properties like `[JsonPropertyName("content-available")]`.
 
 ## Example of notification payload
 You can find expected notification formats for different types of notifications in the documentation. To make it easier to get started, here is a simple example of visible notification (the one that you'll see in phone's notification center) for iOS:
@@ -109,17 +111,17 @@ public class AppleNotification
 {
     public class ApsPayload
     {
-        [JsonProperty("alert")]
+        [JsonPropertyName("alert")]
         public string AlertBody { get; set; }
     }
 
     // Your custom properties as needed
 
-    [JsonProperty("aps")]
+    [JsonPropertyName("aps")]
     public ApsPayload Aps { get; set; }
 }
 ```
-Use `[JsonProperty("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
+Use `[JsonPropertyName("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
 
 # MIT License
 
