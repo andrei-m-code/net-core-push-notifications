@@ -128,7 +128,7 @@ System.Security.Cryptography.CryptographicException: The system cannot find the 
 System.Security.Cryptography.NCryptNative.ImportKey(SafeNCryptProviderHandle provider, Byte[] keyBlob, String format) at
 System.Security.Cryptography.CngKey.Import(Byte[] keyBlob, String curveName, CngKeyBlobFormat format, CngProvider provider)
 ```
-The solution is to add this in the Environment Variables of your service: `WEBSITE_LOAD_USER_PROFILE: 1`. More info on the issue can be found (here)[https://stackoverflow.com/questions/66367406/cngkey-system-security-cryptography-cryptographicexception-the-system-cannot-fin] and (here)[https://stackoverflow.com/questions/46114264/x509certificate2-on-azure-app-services-azure-websites-since-mid-2017].
+The solution is to add this in the Environment Variables of your service: `WEBSITE_LOAD_USER_PROFILE: 1`. More info on the issue can be found [here](https://stackoverflow.com/questions/66367406/cngkey-system-security-cryptography-cryptographicexception-the-system-cannot-fin) and [here](https://stackoverflow.com/questions/46114264/x509certificate2-on-azure-app-services-azure-websites-since-mid-2017).
 
 # MIT License
 
