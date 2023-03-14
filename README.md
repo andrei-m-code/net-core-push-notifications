@@ -121,7 +121,7 @@ public class AppleNotification
 ```
 Use `[JsonPropertyName("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
 
-# Using the library in Azure Functions
+# Azure Functions and Azure App Service
 You may be getting this error when running in Azure Functions or Azure App Service:
 ```
 System.Security.Cryptography.CryptographicException: The system cannot find the file specified. at
