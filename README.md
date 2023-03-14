@@ -98,8 +98,6 @@ To send notifications to Apple devices you have to create a publisher profile an
 var apn = new ApnSender(settings, httpClient);
 await apn.SendAsync(notification, deviceToken);
 ```
-**IMPORTANT**: Initialize 1 ApnSender per bundle. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
-
 Please see Apple notification payload examples here: https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1.
 Tip: To send properties like {"content-available": true} you can use System.Text.Json attributes over C# properties like `[JsonPropertyName("content-available")]`.
 
@@ -122,6 +120,13 @@ public class AppleNotification
 }
 ```
 Use `[JsonPropertyName("alert-type")]` attribute to serialize C# properties into JSON properties with dashes.
+
+# Using the library in Azure Functions
+You may be getting this error when running in Azure Functions or Azure App Service:
+```
+System.Security.Cryptography.CryptographicException: The system cannot find the file specified. at System.Security.Cryptography.NCryptNative.ImportKey(SafeNCryptProviderHandle provider, Byte[] keyBlob, String format) at System.Security.Cryptography.CngKey.Import(Byte[] keyBlob, String curveName, CngKeyBlobFormat format, CngProvider provider)
+```
+The solution is to add this in the Environment Variables of your service: `WEBSITE_LOAD_USER_PROFILE: 1`. More info on the issue can be found (here)[https://stackoverflow.com/questions/66367406/cngkey-system-security-cryptography-cryptographicexception-the-system-cannot-fin] and (here)[https://stackoverflow.com/questions/46114264/x509certificate2-on-azure-app-services-azure-websites-since-mid-2017].
 
 # MIT License
 
