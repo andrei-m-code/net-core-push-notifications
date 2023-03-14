@@ -11,9 +11,7 @@ Send notifications to:
 
 CorePush is a simple lightweight library with minimal overhead. Send notifications to Android and Web using Firebase Cloud Messaging and iOS APN with JWT HTTP/2 API.
 
-# Installation
-
-## NuGet Package
+# Installation - NuGet
 
 Version 4.0.0+ requires .NET7.0. For earlier versions please use v3.1.1 of the library as it's targeting netstandard2.0, though please note, it uses legacy FCM send API. 
 The easiest way to get started with CorePush is to use [nuget](https://www.nuget.org/packages/CorePush) package.
