@@ -1,4 +1,4 @@
-<a href="https://www.nuget.org/packages/CorePush/">
+<a href="https://www.nuget.org/packages/CorePush/#readme-body-tab">
   <img src="https://buildstats.info/nuget/CorePush" alt="Nuget Package Details" />
 </a>
 
