@@ -1,5 +1,10 @@
 [![NuGet](https://img.shields.io/nuget/v/CorePush.svg)](https://www.nuget.org/packages/CorePush/)
 
+  <a href="https://www.nuget.org/packages/WebPush/">
+    <img src="https://buildstats.info/nuget/CorePush" alt="Nuget Package Details" />
+  </a>
+
+
 # .NET Core Push Notifications for Web, Android and iOS
 Send notifications to:
 - ✅ **iOS** - Apple Push Notifications (via Latest Apple Push Notifications HTTP2 JWT API)
