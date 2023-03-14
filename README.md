@@ -1,4 +1,4 @@
-<a href="https://www.nuget.org/packages/WebPush/">
+<a href="https://www.nuget.org/packages/CorePush/">
   <img src="https://buildstats.info/nuget/CorePush" alt="Nuget Package Details" />
 </a>
 
