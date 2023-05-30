@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.27.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.1" />
   </ItemGroup>
 
 </Project>
