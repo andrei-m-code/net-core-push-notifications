@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
@@ -124,8 +123,8 @@ public class ApnSender : IApnSender
     {
         var header = serializer.Serialize(new { alg = "ES256", kid = CryptoHelper.CleanP8Key(settings.P8PrivateKeyId) });
         var payload = serializer.Serialize(new { iss = settings.TeamId, iat = CryptoHelper.GetEpochTimestamp() });
-        var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
-        var payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
+        var headerBase64 = Base64UrlEncode(header);
+        var payloadBase64 = Base64UrlEncode(payload);
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
             
@@ -145,6 +144,15 @@ public class ApnSender : IApnSender
         });
             
         var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
-        return $"{unsignedJwtData}.{Convert.ToBase64String(signature)}";
+        var signatureBase64 = Base64UrlEncode(signature);
+        return $"{unsignedJwtData}.{signatureBase64}";
     }
+    
+    private static string Base64UrlEncode(string str)
+    {
+        var bytes = Encoding.UTF8.GetBytes(str);
+        return Base64UrlEncode(bytes);
+    }
+
+    private static string Base64UrlEncode(byte[] bytes) => Convert.ToBase64String(bytes);
 }
