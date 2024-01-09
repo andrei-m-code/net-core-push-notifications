@@ -21,14 +21,18 @@ public class AppleNotification
 
         [JsonPropertyName("apns-push-type")]
         public string PushType { get; set; } = "alert";
+
+        [JsonPropertyName("badge")]
+        public int Badge { get; set; } = 0;
     }
 
-    public AppleNotification(Guid id, string message, string title = "")
+    public AppleNotification(Guid id, string message, string title = "", int badge = 0)
     {
         Id = id;
 
         Aps = new ApsPayload
         {
+            Badge = badge,
             AlertBody = new ApsPayload.Alert
             {
                 Title = title,
