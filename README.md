@@ -1,7 +1,3 @@
-<a href="https://www.nuget.org/packages/CorePush">
-  <img src="https://buildstats.info/nuget/CorePush" alt="Nuget Package Details" />
-</a>
-
 [![NuGet Version](https://badge.fury.io/nu/CorePush.svg)](https://badge.fury.io/nu/CorePush)
 
 
