@@ -11,6 +11,7 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
 using CorePush.Interfaces;
+using CorePush.Models;
 using CorePush.Utils;
 using CorePush.Serialization;
 
@@ -65,7 +66,7 @@ public class ApnSender : IApnSender
     /// to receive too many requests and may occasionally respond with HTTP 429. Just try/catch this call and retry as needed.
     /// </summary>
     /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
-    public async Task<ApnsResponse> SendAsync(
+    public async Task<PushResult> SendAsync(
         object notification,
         string deviceToken,
         string apnsId = null,
@@ -96,15 +97,13 @@ public class ApnSender : IApnSender
         }
 
         using var response = await http.SendAsync(message, cancellationToken);
-            
-        var success = response.IsSuccessStatusCode;
+        
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        var error = response.IsSuccessStatusCode 
+            ? null 
+            : serializer.Deserialize<ApnsError>(content).Reason;
 
-        return new ApnsResponse
-        {
-            IsSuccess = success,
-            Error = success ? null : serializer.Deserialize<ApnsError>(content)
-        };
+        return new PushResult((int)response.StatusCode, response.IsSuccessStatusCode, content, error);
     }
 
     private string GetJwtToken()
