@@ -87,7 +87,7 @@ public class FirebaseSender : IFirebaseSender
     /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
-    public async Task<CodePushResponse> SendAsync(object payload, CancellationToken cancellationToken = default)
+    public async Task<PushResult> SendAsync(object payload, CancellationToken cancellationToken = default)
     {
         var json = serializer.Serialize(payload);
 
@@ -105,7 +105,7 @@ public class FirebaseSender : IFirebaseSender
 
         var firebaseResponse = serializer.Deserialize<FirebaseResponse>(responseString);
         
-        return new CodePushResponse((int) response.StatusCode,
+        return new PushResult((int) response.StatusCode,
             response.IsSuccessStatusCode,
             firebaseResponse.Name ?? firebaseResponse.Error?.Message,
             responseString);

@@ -8,5 +8,5 @@ namespace CorePush.Interfaces;
 
 public interface IFirebaseSender
 {
-    Task<CodePushResponse> SendAsync(object payload, CancellationToken cancellationToken = default);
+    Task<PushResult> SendAsync(object payload, CancellationToken cancellationToken = default);
 }

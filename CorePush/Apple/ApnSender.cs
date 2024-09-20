@@ -66,7 +66,7 @@ public class ApnSender : IApnSender
     /// to receive too many requests and may occasionally respond with HTTP 429. Just try/catch this call and retry as needed.
     /// </summary>
     /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
-    public async Task<CodePushResponse> SendAsync(
+    public async Task<PushResult> SendAsync(
         object notification,
         string deviceToken,
         string apnsId = null,
@@ -103,7 +103,7 @@ public class ApnSender : IApnSender
             ? null 
             : serializer.Deserialize<ApnsError>(content).Reason;
 
-        return new CodePushResponse((int)response.StatusCode, response.IsSuccessStatusCode, content, error);
+        return new PushResult((int)response.StatusCode, response.IsSuccessStatusCode, content, error);
     }
 
     private string GetJwtToken()

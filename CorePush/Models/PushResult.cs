@@ -1,6 +1,6 @@
 ﻿namespace CorePush.Models;
 
-public record CodePushResponse(
+public record PushResult(
     int StatusCode,
     bool IsSuccessStatusCode,
     string Message,
