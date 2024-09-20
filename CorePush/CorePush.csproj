@@ -25,8 +25,9 @@
     <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
 
     <PackageReleaseNotes>
-v4.1.1
+v4.2.0
 - Dependencies upgrade
+- Firebase Push Result
       
 v4.1.0
 - Bugfixing issues with APNS response handling
