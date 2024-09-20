@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using CorePush.Interfaces;
+using CorePush.Models;
 using CorePush.Serialization;
 using CorePush.Utils;
 
@@ -86,7 +87,7 @@ public class FirebaseSender : IFirebaseSender
     /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
-    public async Task<FirebaseResponse> SendAsync(object payload, CancellationToken cancellationToken = default)
+    public async Task<CodePushResponse> SendAsync(object payload, CancellationToken cancellationToken = default)
     {
         var json = serializer.Serialize(payload);
 
@@ -102,12 +103,12 @@ public class FirebaseSender : IFirebaseSender
         using var response = await http.SendAsync(message, cancellationToken);
         var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new HttpRequestException("Firebase notification error: " + responseString);
-        }
-
-        return serializer.Deserialize<FirebaseResponse>(responseString);
+        var firebaseResponse = serializer.Deserialize<FirebaseResponse>(responseString);
+        
+        return new CodePushResponse((int) response.StatusCode,
+            response.IsSuccessStatusCode,
+            firebaseResponse.Name ?? firebaseResponse.Error?.Message,
+            responseString);
     }
 
     private async Task<string> GetJwtTokenAsync()
