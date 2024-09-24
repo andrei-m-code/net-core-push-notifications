@@ -108,7 +108,7 @@ public class FirebaseSender : IFirebaseSender
         return new PushResult((int) response.StatusCode,
             response.IsSuccessStatusCode,
             firebaseResponse.Name ?? firebaseResponse.Error?.Message,
-            responseString);
+            firebaseResponse.Error?.Status);
     }
 
     private async Task<string> GetJwtTokenAsync()
