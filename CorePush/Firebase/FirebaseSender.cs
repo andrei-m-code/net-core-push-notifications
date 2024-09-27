@@ -1,6 +1,6 @@
 using System;
+using System.IO;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +9,9 @@ using CorePush.Interfaces;
 using CorePush.Models;
 using CorePush.Serialization;
 using CorePush.Utils;
+using Org.BouncyCastle.Crypto.Signers;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
 
 namespace CorePush.Firebase;
 
@@ -161,12 +164,36 @@ public class FirebaseSender : IFirebaseSender
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
-        using var rsa = RSA.Create();
-        rsa.ImportFromPem(settings.PrivateKey.ToCharArray());
+        var privateKey = ParsePKCS8PrivateKeyPem(settings.PrivateKey);
+        ISigner signer = new RsaDigestSigner(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
+        signer.Init(true, privateKey);
+        signer.BlockUpdate(unsignedJwtBytes, 0, unsignedJwtBytes.Length);
 
-        var signature = rsa.SignData(unsignedJwtBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        byte[] signature = signer.GenerateSignature();
         var signatureBase64 = Convert.ToBase64String(signature);
 
         return $"{unsignedJwtData}.{signatureBase64}";
+    }
+
+    private AsymmetricKeyParameter ParsePKCS8PrivateKeyPem(string key)
+    {
+        AsymmetricKeyParameter privateKey;
+        using var keyReader = new StringReader(key);
+        PemReader pemReader = new PemReader(keyReader);
+        object pemObject = pemReader.ReadObject();
+
+        // PKCS#8 keys are typically returned as AsymmetricKeyParameter, not AsymmetricCipherKeyPair
+        if (pemObject is AsymmetricKeyParameter keyParameter)
+        {
+            return privateKey = keyParameter;
+        }
+        else if (pemObject is AsymmetricCipherKeyPair keyPair) // handle case of key pair
+        {
+            return privateKey = keyPair.Private;
+        }
+        else
+        {
+            throw new InvalidOperationException("Invalid private key format.");
+        }
     }
 }
