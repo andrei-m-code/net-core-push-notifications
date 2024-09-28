@@ -120,15 +120,28 @@ public class ApnSender : IApnSender
 
     private string CreateJwtToken()
     {
-        var header = serializer.Serialize(new { alg = "ES256", kid = CryptoHelper.CleanP8Key(settings.P8PrivateKeyId) });
+        var header = serializer.Serialize(new { alg = "ES256", kid = settings.P8PrivateKeyIdClean });
         var payload = serializer.Serialize(new { iss = settings.TeamId, iat = CryptoHelper.GetEpochTimestamp() });
         var headerBase64 = Base64UrlEncode(header);
         var payloadBase64 = Base64UrlEncode(payload);
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
-            
-        var privateKeyBytes = Convert.FromBase64String(CryptoHelper.CleanP8Key(settings.P8PrivateKey));
-        var keyParams = (ECPrivateKeyParameters) PrivateKeyFactory.CreateKey(privateKeyBytes);	
+
+        ECPrivateKeyParameters keyParams = settings.CachedP8PrivateKeyParams as ECPrivateKeyParameters;
+        if (keyParams == null)
+        {
+            lock(settings)
+            {
+                keyParams = settings.CachedP8PrivateKeyParams as ECPrivateKeyParameters;
+                if (keyParams == null)
+                {
+                    var privateKeyBytes = Convert.FromBase64String(CryptoHelper.CleanP8Key(settings.P8PrivateKey));
+                    keyParams = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(privateKeyBytes);
+                    settings.CachedP8PrivateKeyParams = keyParams;
+                }
+            }
+        }
+
         var q = keyParams.Parameters.G.Multiply(keyParams.D).Normalize();	
             
         using var dsa = ECDsa.Create(new ECParameters	

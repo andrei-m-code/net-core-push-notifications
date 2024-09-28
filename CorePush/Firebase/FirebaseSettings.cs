@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+#nullable enable
+
 namespace CorePush.Firebase;
 
 public record FirebaseSettings(
@@ -7,4 +9,7 @@ public record FirebaseSettings(
     [property: JsonPropertyName("private_key")] string PrivateKey,
     [property: JsonPropertyName("client_email")] string ClientEmail,
     [property: JsonPropertyName("token_uri")] string TokenUri
-);
+)
+{
+    internal object? _CachedPivateKey;
+}

@@ -165,7 +165,20 @@ public class FirebaseSender : IFirebaseSender
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
-        var privateKey = ParsePkcs8PrivateKeyPem(settings.PrivateKey);
+        var privateKey = settings._CachedPivateKey as AsymmetricKeyParameter;
+        if (privateKey == null)
+        {
+            lock(settings)
+            {
+                privateKey = settings._CachedPivateKey as AsymmetricKeyParameter;
+                if (privateKey == null)
+                {
+                    privateKey = ParsePkcs8PrivateKeyPem(settings.PrivateKey);
+                    settings._CachedPivateKey = privateKey;
+                }
+            }
+        }
+
         var signer = new RsaDigestSigner(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
         signer.Init(true, privateKey);
         signer.BlockUpdate(unsignedJwtBytes, 0, unsignedJwtBytes.Length);
