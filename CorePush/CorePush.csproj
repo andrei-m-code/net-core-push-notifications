@@ -10,9 +10,9 @@
     <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>4.3.0</AssemblyVersion>
-    <FileVersion>4.3.0</FileVersion>
-    <Version>4.3.0</Version>
+    <AssemblyVersion>4.4.0</AssemblyVersion>
+    <FileVersion>4.4.0</FileVersion>
+    <Version>4.4.0</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
@@ -25,7 +25,7 @@
     <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
 
     <PackageReleaseNotes>
-v4.3.0
+v4.3.0, v4.4.0
 - Upgrade to Bouncycastle.Cryptography
 - Other pkg version bumps
       
@@ -82,7 +82,7 @@ v3.0.0
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
   </ItemGroup>
   
   <ItemGroup>
