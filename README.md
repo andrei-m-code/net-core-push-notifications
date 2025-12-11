@@ -42,7 +42,7 @@ var fcm = new FirebaseSender(firebaseSettingsJson, httpClient);
 await fcm.SendAsync(payload);
 ```
 Useful links:
-- Message formats: https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
+- Message formats: https://firebase.google.com/docs/cloud-messaging/customize-messages/set-message-type
 - Migrating from legacy API: https://firebase.google.com/docs/cloud-messaging/migrate-v1
 
 ## Firebase iOS notifications
