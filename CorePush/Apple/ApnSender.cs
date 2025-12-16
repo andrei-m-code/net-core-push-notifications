@@ -36,6 +36,7 @@ public class ApnSender : IApnSender
     private readonly HttpClient http;
     private readonly IJsonSerializer serializer;
 
+    /// <parameter name="http">A <see cref="HttpClient"/> dedicated to this <see cref="ApnSender"/>. Do not use a shared <see cref="HttpClient"/> instance, since its instance-level state may be modified. However, its <see cref="HttpClientHandler" can be shared.</parameter>
     public ApnSender(ApnSettings settings, HttpClient http) : this(settings, http, new DefaultCorePushJsonSerializer())
     {
     }
