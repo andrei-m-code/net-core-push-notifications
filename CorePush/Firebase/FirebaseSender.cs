@@ -19,6 +19,9 @@ namespace CorePush.Firebase;
 /// <summary>
 /// Firebase message sender
 /// </summary>
+/// <remarks>
+/// This type is thread safe.
+/// </remarks>
 public class FirebaseSender : IFirebaseSender
 {
     private readonly HttpClient http;
