@@ -47,7 +47,7 @@ Useful links:
 
 ## Firebase iOS notifications
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
-The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications.
+The library serializes notification object to JSON and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications.
 
 ## Firebase Notification Payload Example
 
