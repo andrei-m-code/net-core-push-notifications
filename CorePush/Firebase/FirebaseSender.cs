@@ -88,7 +88,7 @@ public class FirebaseSender : IFirebaseSender
     /// https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
     /// https://firebase.google.com/docs/cloud-messaging/send-message
     /// </summary>
-    /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
+    /// <param name="payload">Notification payload that will be serialized to JSON</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
     public async Task<PushResult> SendAsync(object payload, CancellationToken cancellationToken = default)

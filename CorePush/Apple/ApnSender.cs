@@ -62,7 +62,6 @@ public class ApnSender : IApnSender
     /// <summary>
     /// Serialize and send notification to APN. Please see how your message should be formatted here:
     /// https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1
-    /// Payload will be serialized using Newtonsoft.Json package.
     /// !IMPORTANT: If you send many messages at once, make sure to retry those calls. Apple typically doesn't like 
     /// to receive too many requests and may occasionally respond with HTTP 429. Just try/catch this call and retry as needed.
     /// </summary>
