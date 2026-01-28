@@ -20,6 +20,9 @@ namespace CorePush.Apple;
 /// <summary>
 /// HTTP2 Apple Push Notification sender
 /// </summary>
+/// <remarks>
+/// This type is thread safe.
+/// </remarks>
 public class ApnSender : IApnSender
 {
     private static readonly ConcurrentDictionary<string, Tuple<string, DateTime>> tokens = new();
