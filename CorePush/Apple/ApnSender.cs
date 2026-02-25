@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -7,8 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 
 using CorePush.Interfaces;
 using CorePush.Models;
@@ -43,7 +41,7 @@ public class ApnSender : IApnSender
     public ApnSender(ApnSettings settings, HttpClient http) : this(settings, http, new DefaultCorePushJsonSerializer())
     {
     }
-        
+
     /// <summary>
     /// Apple push notification sender constructor
     /// </summary>
@@ -55,7 +53,7 @@ public class ApnSender : IApnSender
         this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         this.http = http ?? throw new ArgumentNullException(nameof(http));
         this.serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            
+
         if (http.BaseAddress == null)
         {
             http.BaseAddress = new Uri(servers[settings.ServerType]);
@@ -65,7 +63,7 @@ public class ApnSender : IApnSender
     /// <summary>
     /// Serialize and send notification to APN. Please see how your message should be formatted here:
     /// https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1
-    /// !IMPORTANT: If you send many messages at once, make sure to retry those calls. Apple typically doesn't like 
+    /// !IMPORTANT: If you send many messages at once, make sure to retry those calls. Apple typically doesn't like
     /// to receive too many requests and may occasionally respond with HTTP 429. Just try/catch this call and retry as needed.
     /// </summary>
     /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
@@ -78,14 +76,16 @@ public class ApnSender : IApnSender
         ApnPushType apnPushType = ApnPushType.Alert,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceToken);
+
         var path = $"/3/device/{deviceToken}";
         var json = serializer.Serialize(notification);
 
         using var message = new HttpRequestMessage(HttpMethod.Post, path);
-            
+
         message.Version = new Version(2, 0);
         message.Content = new StringContent(json);
-                
+
         message.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetJwtToken());
         message.Headers.TryAddWithoutValidation(":method", "POST");
         message.Headers.TryAddWithoutValidation(":path", path);
@@ -100,21 +100,22 @@ public class ApnSender : IApnSender
         }
 
         using var response = await http.SendAsync(message, cancellationToken);
-        
+
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var error = response.IsSuccessStatusCode 
-            ? null 
-            : serializer.Deserialize<ApnsError>(content).Reason;
+        var error = response.IsSuccessStatusCode
+            ? null
+            : serializer.Deserialize<ApnsError>(content)?.Reason;
 
         return new PushResult((int)response.StatusCode, response.IsSuccessStatusCode, content, error);
     }
 
     private string GetJwtToken()
     {
-        var (token, date) = tokens.GetOrAdd(settings.AppBundleIdentifier, _ => new Tuple<string, DateTime>(CreateJwtToken(), DateTime.UtcNow));
+        var cacheKey = $"{settings.AppBundleIdentifier}:{settings.P8PrivateKeyId}";
+        var (token, date) = tokens.GetOrAdd(cacheKey, _ => new Tuple<string, DateTime>(CreateJwtToken(), DateTime.UtcNow));
         if (date < DateTime.UtcNow.AddMinutes(-tokenExpiresMinutes))
         {
-            tokens.TryRemove(settings.AppBundleIdentifier, out _);
+            tokens.TryRemove(cacheKey, out _);
             return GetJwtToken();
         }
 
@@ -129,32 +130,26 @@ public class ApnSender : IApnSender
         var payloadBase64 = Base64UrlEncode(payload);
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
-            
+
         var privateKeyBytes = Convert.FromBase64String(CryptoHelper.CleanP8Key(settings.P8PrivateKey));
-        var keyParams = (ECPrivateKeyParameters) PrivateKeyFactory.CreateKey(privateKeyBytes);	
-        var q = keyParams.Parameters.G.Multiply(keyParams.D).Normalize();	
-            
-        using var dsa = ECDsa.Create(new ECParameters	
-        {	
-            Curve = ECCurve.CreateFromValue(keyParams.PublicKeyParamSet.Id),	
-            D = keyParams.D.ToByteArrayUnsigned(),	
-            Q =	
-            {	
-                X = q.XCoord.GetEncoded(),	
-                Y = q.YCoord.GetEncoded()	
-            }	
-        });
-            
-        var signature = dsa.SignData(unsignedJwtBytes, 0, unsignedJwtBytes.Length, HashAlgorithmName.SHA256);
+
+        using var dsa = ECDsa.Create();
+        dsa.ImportPkcs8PrivateKey(privateKeyBytes, out _);
+
+        var signature = dsa.SignData(unsignedJwtBytes, HashAlgorithmName.SHA256);
         var signatureBase64 = Base64UrlEncode(signature);
         return $"{unsignedJwtData}.{signatureBase64}";
     }
-    
+
     private static string Base64UrlEncode(string str)
     {
         var bytes = Encoding.UTF8.GetBytes(str);
         return Base64UrlEncode(bytes);
     }
 
-    private static string Base64UrlEncode(byte[] bytes) => Convert.ToBase64String(bytes);
+    private static string Base64UrlEncode(byte[] bytes) =>
+        Convert.ToBase64String(bytes)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
 }
