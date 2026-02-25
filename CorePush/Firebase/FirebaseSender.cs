@@ -102,7 +102,7 @@ public class FirebaseSender : IFirebaseSender
             HttpMethod.Post, 
             $"https://fcm.googleapis.com/v1/projects/{settings.ProjectId}/messages:send");
 
-        var token = await GetJwtTokenAsync();
+        var token = await GetJwtTokenAsync(cancellationToken);
             
         message.Headers.Add("Authorization", $"Bearer {token}");
         message.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -118,13 +118,13 @@ public class FirebaseSender : IFirebaseSender
             firebaseResponse.Error?.Status);
     }
 
-    private async Task<string> GetJwtTokenAsync()
+    private async Task<string> GetJwtTokenAsync(CancellationToken cancellationToken)
     {
         if (firebaseToken != null && firebaseTokenExpiration > DateTime.UtcNow)
         {
             return firebaseToken.AccessToken;
         }
-            
+
         using var message = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token");
         using var form = new MultipartFormDataContent();
         var authToken = GetMasterToken();
@@ -132,8 +132,8 @@ public class FirebaseSender : IFirebaseSender
         form.Add(new StringContent("urn:ietf:params:oauth:grant-type:jwt-bearer"), "grant_type");
         message.Content = form;
 
-        using var response = await http.SendAsync(message);
-        var content = await response.Content.ReadAsStringAsync();
+        using var response = await http.SendAsync(message, cancellationToken);
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
             
         if (!response.IsSuccessStatusCode)
         {
@@ -163,8 +163,8 @@ public class FirebaseSender : IFirebaseSender
             exp = CryptoHelper.GetEpochTimestamp() + 3600 /* has to be short lived */
         });
         
-        var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
-        var payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
+        var headerBase64 = Base64UrlEncode(Encoding.UTF8.GetBytes(header));
+        var payloadBase64 = Base64UrlEncode(Encoding.UTF8.GetBytes(payload));
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
@@ -174,10 +174,16 @@ public class FirebaseSender : IFirebaseSender
         signer.BlockUpdate(unsignedJwtBytes, 0, unsignedJwtBytes.Length);
 
         var signature = signer.GenerateSignature();
-        var signatureBase64 = Convert.ToBase64String(signature);
+        var signatureBase64 = Base64UrlEncode(signature);
 
         return $"{unsignedJwtData}.{signatureBase64}";
     }
+
+    private static string Base64UrlEncode(byte[] bytes) =>
+        Convert.ToBase64String(bytes)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
 
     private static AsymmetricKeyParameter ParsePkcs8PrivateKeyPem(string key)
     {

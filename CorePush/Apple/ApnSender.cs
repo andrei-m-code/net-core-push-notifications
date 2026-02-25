@@ -78,6 +78,8 @@ public class ApnSender : IApnSender
         ApnPushType apnPushType = ApnPushType.Alert,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceToken);
+
         var path = $"/3/device/{deviceToken}";
         var json = serializer.Serialize(notification);
 
@@ -102,19 +104,20 @@ public class ApnSender : IApnSender
         using var response = await http.SendAsync(message, cancellationToken);
         
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var error = response.IsSuccessStatusCode 
-            ? null 
-            : serializer.Deserialize<ApnsError>(content).Reason;
+        var error = response.IsSuccessStatusCode
+            ? null
+            : serializer.Deserialize<ApnsError>(content)?.Reason;
 
         return new PushResult((int)response.StatusCode, response.IsSuccessStatusCode, content, error);
     }
 
     private string GetJwtToken()
     {
-        var (token, date) = tokens.GetOrAdd(settings.AppBundleIdentifier, _ => new Tuple<string, DateTime>(CreateJwtToken(), DateTime.UtcNow));
+        var cacheKey = $"{settings.AppBundleIdentifier}:{settings.P8PrivateKeyId}";
+        var (token, date) = tokens.GetOrAdd(cacheKey, _ => new Tuple<string, DateTime>(CreateJwtToken(), DateTime.UtcNow));
         if (date < DateTime.UtcNow.AddMinutes(-tokenExpiresMinutes))
         {
-            tokens.TryRemove(settings.AppBundleIdentifier, out _);
+            tokens.TryRemove(cacheKey, out _);
             return GetJwtToken();
         }
 
@@ -156,5 +159,9 @@ public class ApnSender : IApnSender
         return Base64UrlEncode(bytes);
     }
 
-    private static string Base64UrlEncode(byte[] bytes) => Convert.ToBase64String(bytes);
+    private static string Base64UrlEncode(byte[] bytes) =>
+        Convert.ToBase64String(bytes)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
 }
