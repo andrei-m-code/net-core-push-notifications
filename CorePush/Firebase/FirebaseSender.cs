@@ -1,6 +1,6 @@
 using System;
-using System.IO;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,10 +9,6 @@ using CorePush.Interfaces;
 using CorePush.Models;
 using CorePush.Serialization;
 using CorePush.Utils;
-
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
 
 namespace CorePush.Firebase;
 
@@ -40,7 +36,7 @@ public class FirebaseSender : IFirebaseSender
     public FirebaseSender(string serviceAccountFileJson, HttpClient http): this(serviceAccountFileJson, http, new DefaultCorePushJsonSerializer())
     {
     }
-        
+
     /// <summary>
     /// Initialize FirebaseSender
     /// </summary>
@@ -48,11 +44,11 @@ public class FirebaseSender : IFirebaseSender
     /// The file would have a name like: myproject-12345-abc123123.json</param>
     /// <param name="http">HTTP client</param>
     /// <param name="serializer">Customized JSON serializer</param>
-    public FirebaseSender(string serviceAccountFileJson, HttpClient http, IJsonSerializer serializer) 
+    public FirebaseSender(string serviceAccountFileJson, HttpClient http, IJsonSerializer serializer)
         : this(serializer.Deserialize<FirebaseSettings>(serviceAccountFileJson), http, serializer)
     {
     }
-        
+
     /// <summary>
     /// Initialize FirebaseSender
     /// </summary>
@@ -99,11 +95,11 @@ public class FirebaseSender : IFirebaseSender
         var json = serializer.Serialize(payload);
 
         using var message = new HttpRequestMessage(
-            HttpMethod.Post, 
+            HttpMethod.Post,
             $"https://fcm.googleapis.com/v1/projects/{settings.ProjectId}/messages:send");
 
-        var token = await GetJwtTokenAsync();
-            
+        var token = await GetJwtTokenAsync(cancellationToken);
+
         message.Headers.Add("Authorization", $"Bearer {token}");
         message.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -111,20 +107,20 @@ public class FirebaseSender : IFirebaseSender
         var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 
         var firebaseResponse = serializer.Deserialize<FirebaseResponse>(responseString);
-        
+
         return new PushResult((int) response.StatusCode,
             response.IsSuccessStatusCode,
             firebaseResponse.Name ?? firebaseResponse.Error?.Message,
             firebaseResponse.Error?.Status);
     }
 
-    private async Task<string> GetJwtTokenAsync()
+    private async Task<string> GetJwtTokenAsync(CancellationToken cancellationToken)
     {
         if (firebaseToken != null && firebaseTokenExpiration > DateTime.UtcNow)
         {
             return firebaseToken.AccessToken;
         }
-            
+
         using var message = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token");
         using var form = new MultipartFormDataContent();
         var authToken = GetMasterToken();
@@ -132,9 +128,9 @@ public class FirebaseSender : IFirebaseSender
         form.Add(new StringContent("urn:ietf:params:oauth:grant-type:jwt-bearer"), "grant_type");
         message.Content = form;
 
-        using var response = await http.SendAsync(message);
-        var content = await response.Content.ReadAsStringAsync();
-            
+        using var response = await http.SendAsync(message, cancellationToken);
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
         if (!response.IsSuccessStatusCode)
         {
             throw new HttpRequestException("Firebase error when creating JWT token: " + content);
@@ -147,10 +143,10 @@ public class FirebaseSender : IFirebaseSender
         {
             throw new InvalidOperationException("Couldn't deserialize firebase token response");
         }
-            
+
         return firebaseToken.AccessToken;
     }
-        
+
     private string GetMasterToken()
     {
         var header = serializer.Serialize(new { alg = "RS256", typ = "JWT" });
@@ -162,36 +158,24 @@ public class FirebaseSender : IFirebaseSender
             iat = CryptoHelper.GetEpochTimestamp(),
             exp = CryptoHelper.GetEpochTimestamp() + 3600 /* has to be short lived */
         });
-        
-        var headerBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(header));
-        var payloadBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
+
+        var headerBase64 = Base64UrlEncode(Encoding.UTF8.GetBytes(header));
+        var payloadBase64 = Base64UrlEncode(Encoding.UTF8.GetBytes(payload));
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
-        var privateKey = ParsePkcs8PrivateKeyPem(settings.PrivateKey);
-        var signer = new RsaDigestSigner(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
-        signer.Init(true, privateKey);
-        signer.BlockUpdate(unsignedJwtBytes, 0, unsignedJwtBytes.Length);
+        using var rsa = RSA.Create();
+        rsa.ImportFromPem(settings.PrivateKey);
 
-        var signature = signer.GenerateSignature();
-        var signatureBase64 = Convert.ToBase64String(signature);
+        var signature = rsa.SignData(unsignedJwtBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        var signatureBase64 = Base64UrlEncode(signature);
 
         return $"{unsignedJwtData}.{signatureBase64}";
     }
 
-    private static AsymmetricKeyParameter ParsePkcs8PrivateKeyPem(string key)
-    {
-        using var keyReader = new StringReader(key);
-        var pemReader = new PemReader(keyReader);
-        var pemObject = pemReader.ReadObject();
-
-        return pemObject switch
-        {
-            // PKCS#8 keys are typically returned as AsymmetricKeyParameter, not AsymmetricCipherKeyPair
-            AsymmetricKeyParameter keyParameter => keyParameter,
-            // handle case of key pair
-            AsymmetricCipherKeyPair keyPair => keyPair.Private,
-            _ => throw new InvalidOperationException("Invalid private key format.")
-        };
-    }
+    private static string Base64UrlEncode(byte[] bytes) =>
+        Convert.ToBase64String(bytes)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
 }
