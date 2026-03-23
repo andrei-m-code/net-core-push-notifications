@@ -17,7 +17,7 @@ Both `ApnSender` and `FirebaseSender` are thread safe.
 |---|---|
 | v5.0.0+ | .NET 10 |
 | v4.4.0 | .NET 9 |
-| v4.2.1 – v4.3.0 | .NET 8 |
+| v4.3.0 | .NET 8 |
 
 For earlier versions please use v3.1.1 of the library as it targets netstandard2.0, though please note, it uses the legacy FCM send API.
 
