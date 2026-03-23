@@ -50,15 +50,13 @@ class Program
             ServerType = apnServerType,
         };
 
-        while (true)
-        {
-            var apn = new ApnSender(settings, http);
-            var payload = new AppleNotification(
-                Guid.NewGuid(), 
-                "Hello World (Message)",
-                "Hello World (Title)");
-            var response = await apn.SendAsync(payload, apnDeviceToken);
-        }
+        var apn = new ApnSender(settings, http);
+        var payload = new AppleNotification(
+            Guid.NewGuid(),
+            "Hello World (Message)",
+            "Hello World (Title)");
+        var response = await apn.SendAsync(payload, apnDeviceToken);
+        Console.WriteLine($"APN Response: {response.StatusCode} - {response.Message}");
     }
 
     private static async Task SendFirebaseNotificationAsync()
