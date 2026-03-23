@@ -23,6 +23,7 @@ public class FirebaseSender : IFirebaseSender
     private readonly HttpClient http;
     private readonly FirebaseSettings settings;
     private readonly IJsonSerializer serializer;
+    private readonly SemaphoreSlim tokenLock = new(1, 1);
 
     private DateTime? firebaseTokenExpiration;
     private FirebaseTokenResponse firebaseToken;
@@ -121,30 +122,43 @@ public class FirebaseSender : IFirebaseSender
             return firebaseToken.AccessToken;
         }
 
-        using var message = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token");
-        using var form = new MultipartFormDataContent();
-        var authToken = GetMasterToken();
-        form.Add(new StringContent(authToken), "assertion");
-        form.Add(new StringContent("urn:ietf:params:oauth:grant-type:jwt-bearer"), "grant_type");
-        message.Content = form;
-
-        using var response = await http.SendAsync(message, cancellationToken);
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        await tokenLock.WaitAsync(cancellationToken);
+        try
         {
-            throw new HttpRequestException("Firebase error when creating JWT token: " + content);
+            if (firebaseToken != null && firebaseTokenExpiration > DateTime.UtcNow)
+            {
+                return firebaseToken.AccessToken;
+            }
+
+            using var message = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token");
+            using var form = new MultipartFormDataContent();
+            var authToken = GetMasterToken();
+            form.Add(new StringContent(authToken), "assertion");
+            form.Add(new StringContent("urn:ietf:params:oauth:grant-type:jwt-bearer"), "grant_type");
+            message.Content = form;
+
+            using var response = await http.SendAsync(message, cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException("Firebase error when creating JWT token: " + content);
+            }
+
+            firebaseToken = serializer.Deserialize<FirebaseTokenResponse>(content);
+            firebaseTokenExpiration = DateTime.UtcNow.AddSeconds(firebaseToken.ExpiresIn - 10);
+
+            if (string.IsNullOrWhiteSpace(firebaseToken.AccessToken) || firebaseTokenExpiration < DateTime.UtcNow)
+            {
+                throw new InvalidOperationException("Couldn't deserialize firebase token response");
+            }
+
+            return firebaseToken.AccessToken;
         }
-
-        firebaseToken = serializer.Deserialize<FirebaseTokenResponse>(content);
-        firebaseTokenExpiration = DateTime.UtcNow.AddSeconds(firebaseToken.ExpiresIn - 10);
-
-        if (string.IsNullOrWhiteSpace(firebaseToken.AccessToken) || firebaseTokenExpiration < DateTime.UtcNow)
+        finally
         {
-            throw new InvalidOperationException("Couldn't deserialize firebase token response");
+            tokenLock.Release();
         }
-
-        return firebaseToken.AccessToken;
     }
 
     private string GetMasterToken()
