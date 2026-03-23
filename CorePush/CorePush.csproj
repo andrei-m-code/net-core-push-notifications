@@ -10,9 +10,9 @@
     <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>4.4.0</AssemblyVersion>
-    <FileVersion>4.4.0</FileVersion>
-    <Version>4.4.0</Version>
+    <AssemblyVersion>5.0.0</AssemblyVersion>
+    <FileVersion>5.0.0</FileVersion>
+    <Version>5.0.0</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
