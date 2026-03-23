@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <Title>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Title>
@@ -25,6 +25,15 @@
     <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
 
     <PackageReleaseNotes>
+v5.0.0
+- Remove BouncyCastle dependency in favor of built-in .NET cryptography
+- Upgrade to .NET 10
+- Fix Base64URL encoding for JWT tokens (RFC 7617)
+- Fix null reference in APN error handling
+- Fix token cache key collision
+- Add device token validation
+- Propagate CancellationToken in Firebase sender
+
 v4.3.0, v4.4.0
 - Upgrade to Bouncycastle.Cryptography
 - Other pkg version bumps
@@ -81,10 +90,6 @@ v3.0.0
     
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
-  </ItemGroup>
-  
   <ItemGroup>
     <None Include="..\Icon.png" Pack="true" PackagePath="Icon.png" />
     <None Include="..\README.md" Pack="true" PackagePath="README.md" />
