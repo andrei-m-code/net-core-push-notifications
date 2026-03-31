@@ -45,7 +45,7 @@ To start sending Firebase messages you need a Service Account JSON key file from
 Sending messages:
 
 ```csharp
-var firebaseSettingsJson = await File.ReadAllTextAsync("./link/to/my-project-123345-e12345.json");
+var settingsJson = await File.ReadAllTextAsync("./path-to/my-project-123345-e12345.json");
 var fcm = new FirebaseSender(firebaseSettingsJson, httpClient);
 var result = await fcm.SendAsync(payload);
 
