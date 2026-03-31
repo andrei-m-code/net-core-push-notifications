@@ -38,7 +38,11 @@ public class ApnSender : IApnSender
     private readonly HttpClient http;
     private readonly IJsonSerializer serializer;
 
-    /// <param name="http">A <see cref="HttpClient"/> dedicated to this <see cref="ApnSender"/>. Do not use a shared <see cref="HttpClient"/> instance, since its instance-level state may be modified. However, its <see cref="HttpClientHandler" can be shared.</param>
+    /// <summary>
+    /// Creates a new Apple Push Notification sender with default JSON serialization.
+    /// </summary>
+    /// <param name="settings">Apple Push Notification settings (team ID, key, bundle ID, etc.).</param>
+    /// <param name="http">A <see cref="HttpClient"/> dedicated to this <see cref="ApnSender"/>. Do not use a shared <see cref="HttpClient"/> instance, since its instance-level state may be modified. However, its <see cref="HttpClientHandler"/> can be shared.</param>
     public ApnSender(ApnSettings settings, HttpClient http) : this(settings, http, new DefaultCorePushJsonSerializer())
     {
     }
