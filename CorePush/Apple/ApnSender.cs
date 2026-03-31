@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
@@ -131,14 +132,29 @@ public class ApnSender : IApnSender
         var unsignedJwtData = $"{headerBase64}.{payloadBase64}";
         var unsignedJwtBytes = Encoding.UTF8.GetBytes(unsignedJwtData);
 
-        var privateKeyBytes = Convert.FromBase64String(CryptoHelper.CleanP8Key(settings.P8PrivateKey));
+        var pkcs8Bytes = Convert.FromBase64String(CryptoHelper.CleanP8Key(settings.P8PrivateKey));
+        var ecPrivateKey = ExtractEcPrivateKey(pkcs8Bytes);
 
         using var dsa = ECDsa.Create();
-        dsa.ImportPkcs8PrivateKey(privateKeyBytes, out _);
+        dsa.ImportECPrivateKey(ecPrivateKey, out _);
 
         var signature = dsa.SignData(unsignedJwtBytes, HashAlgorithmName.SHA256);
         var signatureBase64 = Base64UrlEncode(signature);
         return $"{unsignedJwtData}.{signatureBase64}";
+    }
+
+    /// <summary>
+    /// Extracts the inner EC private key (SEC 1 / RFC 5915) from a PKCS#8 envelope.
+    /// Using ImportECPrivateKey instead of ImportPkcs8PrivateKey avoids the CNG PKCS#8 import
+    /// path which fails on Windows Server/IIS when "Load User Profile" is disabled.
+    /// </summary>
+    internal static byte[] ExtractEcPrivateKey(byte[] pkcs8PrivateKey)
+    {
+        var reader = new AsnReader(pkcs8PrivateKey, AsnEncodingRules.DER);
+        var pkcs8 = reader.ReadSequence();
+        pkcs8.ReadEncodedValue(); // version
+        pkcs8.ReadSequence();     // algorithm identifier
+        return pkcs8.ReadOctetString(); // SEC 1 EC private key
     }
 
     private static string Base64UrlEncode(string str)
