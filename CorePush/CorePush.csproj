@@ -10,9 +10,9 @@
     <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
     <Authors>andrei-m-code</Authors>
 
-    <AssemblyVersion>5.0.0</AssemblyVersion>
-    <FileVersion>5.0.0</FileVersion>
-    <Version>5.0.0</Version>
+    <AssemblyVersion>5.0.1</AssemblyVersion>
+    <FileVersion>5.0.1</FileVersion>
+    <Version>5.0.1</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
@@ -25,6 +25,9 @@
     <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
 
     <PackageReleaseNotes>
+v5.0.1
+- Fix APN JWT signing failure on Windows Server/IIS when "Load User Profile" is disabled by extracting EC private key from PKCS#8 envelope
+
 v5.0.0
 - Remove BouncyCastle dependency in favor of built-in .NET cryptography
 - Upgrade to .NET 10
