@@ -129,7 +129,7 @@ public class ApnSender : IApnSender
 
     private string CreateJwtToken()
     {
-        var header = serializer.Serialize(new { alg = "ES256", kid = CryptoHelper.CleanP8Key(settings.P8PrivateKeyId) });
+        var header = serializer.Serialize(new { alg = "ES256", kid = settings.P8PrivateKeyId });
         var payload = serializer.Serialize(new { iss = settings.TeamId, iat = CryptoHelper.GetEpochTimestamp() });
         var headerBase64 = Base64UrlEncode(header);
         var payloadBase64 = Base64UrlEncode(payload);

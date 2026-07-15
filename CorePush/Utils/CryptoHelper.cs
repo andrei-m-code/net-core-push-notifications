@@ -30,9 +30,8 @@ internal static class CryptoHelper
         return result;
     }
         
-    public static int GetEpochTimestamp()
+    public static long GetEpochTimestamp()
     {
-        var span = DateTime.UtcNow - new DateTime(1970, 1, 1);
-        return Convert.ToInt32(span.TotalSeconds);
+        return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 }
