@@ -13,11 +13,42 @@ using CorePush.Utils;
 namespace CorePush.Firebase;
 
 /// <summary>
-/// Firebase message sender
+/// Sends push notifications to Android, iOS and Web clients through the Firebase Cloud Messaging (FCM)
+/// HTTP v1 API.
 /// </summary>
 /// <remarks>
-/// This type is thread safe.
+/// <para>
+/// The sender exchanges the service-account credentials for a Google OAuth2 access token, caches it,
+/// and refreshes it automatically shortly before it expires. Payloads are serialized to JSON and posted
+/// verbatim to the FCM <c>messages:send</c> endpoint, so their shape is entirely up to the caller.
+/// </para>
+/// <para>
+/// This type is thread safe and is meant to be long-lived: register it as a singleton (for example
+/// with <c>AddHttpClient&lt;IFirebaseSender, FirebaseSender&gt;()</c>). Its <see cref="HttpClient"/> may be
+/// shared with other code, since the sender uses absolute URLs and does not modify the client.
+/// </para>
 /// </remarks>
+/// <example>
+/// <code>
+/// var serviceAccountJson = await File.ReadAllTextAsync("service-account.json");
+/// var fcm = new FirebaseSender(serviceAccountJson, httpClient);
+///
+/// var message = new
+/// {
+///     message = new
+///     {
+///         token = deviceToken,
+///         notification = new { title = "Hi", body = "Hello" }
+///     }
+/// };
+///
+/// var result = await fcm.SendAsync(message);
+/// if (!result.IsSuccessStatusCode)
+/// {
+///     Console.WriteLine($"{result.Error}: {result.Message}");
+/// }
+/// </code>
+/// </example>
 public class FirebaseSender : IFirebaseSender
 {
     private readonly HttpClient http;
@@ -61,12 +92,13 @@ public class FirebaseSender : IFirebaseSender
     }
 
     /// <summary>
-    /// Initialize FirebaseSender
+    /// Initializes a new <see cref="FirebaseSender"/> from parsed Firebase service account settings, using a custom JSON serializer.
     /// </summary>
-    /// <param name="settings">Firebase Service Account Key JSON file settings. FirebaseSettings record can be used as a target of deserialization
-    /// of the Firebase SDK key file e.g. myproject-12345-abc123123.json</param>
-    /// <param name="http">HTTP client</param>
-    /// <param name="serializer">Customized JSON serializer</param>
+    /// <param name="settings">Firebase service account settings. <see cref="FirebaseSettings"/> can be used as a deserialization target for the Firebase service account key file, e.g. myproject-12345-abc123123.json.</param>
+    /// <param name="http">The <see cref="HttpClient"/> used to call the Google OAuth2 and FCM endpoints. Because the sender uses absolute URLs and does not modify the client, a shared instance is fine.</param>
+    /// <param name="serializer">The JSON serializer used to serialize message payloads and deserialize FCM responses.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/>, <paramref name="http"/>, or <paramref name="serializer"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when required <paramref name="settings"/> values (client email, private key, project ID, or token URI) are missing.</exception>
     public FirebaseSender(FirebaseSettings settings, HttpClient http, IJsonSerializer serializer)
     {
         this.http = http ?? throw new ArgumentNullException(nameof(http));
@@ -82,15 +114,17 @@ public class FirebaseSender : IFirebaseSender
         }
     }
 
-    /// <summary>
-    /// Send firebase notification. Token must be present in order to send direct push notification.
-    /// Please check out payload formats:
-    /// https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
-    /// https://firebase.google.com/docs/cloud-messaging/send-message
-    /// </summary>
-    /// <param name="payload">Notification payload that will be serialized to JSON</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
+    /// <inheritdoc />
+    /// <remarks>
+    /// The payload must contain a target (e.g. a device <c>token</c>) as described in the FCM payload formats:
+    /// <see href="https://firebase.google.com/docs/cloud-messaging/concept-options#notifications">notification options</see> and
+    /// <see href="https://firebase.google.com/docs/cloud-messaging/send-message">send a message</see>.
+    /// <para>
+    /// This method does not throw for HTTP error responses from FCM; inspect the returned <see cref="PushResult"/> instead.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="HttpRequestException">Thrown when the OAuth2 access-token request to Google fails, or on a network/transport-level failure.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the OAuth2 access-token response cannot be read.</exception>
     public async Task<PushResult> SendAsync(object payload, CancellationToken cancellationToken = default)
     {
         var json = serializer.Serialize(payload);

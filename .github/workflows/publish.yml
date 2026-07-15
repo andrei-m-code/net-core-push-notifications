@@ -19,7 +19,7 @@ jobs:
         run: dotnet restore CorePush.sln
 
       - name: Build
-        run: dotnet build CorePush.sln --no-restore -c Release
+        run: dotnet build CorePush.sln --no-restore -c Release -p:ContinuousIntegrationBuild=true
 
       - name: Pack CorePush
         run: dotnet pack CorePush/CorePush.csproj --no-build -c Release -o out

@@ -5,6 +5,13 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
+    <!-- Source debugging: SourceLink + embedded symbols (dev-only, no runtime dependency) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+
     <Title>CorePush — iOS, Android and Web Push Notifications for .NET</Title>
     <Description>CorePush is a lightweight, dependency-free .NET library for sending server-side push notifications to iOS, Android and Web. It supports the Apple Push Notification service (APNs) over HTTP/2 with token-based (.p8 / JWT) authentication, and Firebase Cloud Messaging (FCM) HTTP v1 API for Android and Web. Built on the native .NET cryptography stack (no BouncyCastle), it ships thread-safe senders, works with IHttpClientFactory and dependency injection, and lets you plug in a custom JSON serializer.</Description>
     <Summary>Lightweight, dependency-free .NET library for iOS (APNs HTTP/2 + JWT), Android and Web (Firebase FCM HTTP v1) push notifications.</Summary>
@@ -12,9 +19,9 @@
     <Company>andrei-m-code</Company>
     <Copyright>Copyright © Andrei M</Copyright>
 
-    <AssemblyVersion>5.0.3</AssemblyVersion>
-    <FileVersion>5.0.3</FileVersion>
-    <Version>5.0.3</Version>
+    <AssemblyVersion>5.0.4</AssemblyVersion>
+    <FileVersion>5.0.4</FileVersion>
+    <Version>5.0.4</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/net-core-push-notifications</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/net-core-push-notifications</RepositoryUrl>
@@ -27,6 +34,12 @@
     <PackageTags>push-notifications;apn;apns;fcm;firebase;gcm;ios;android;web-push;web-push-notifications;android-push-notifications;ios-push-notifications;notifications;messaging;dotnet;aspnetcore;http2;jwt;mobile</PackageTags>
 
     <PackageReleaseNotes>
+v5.0.4
+- Add Source Link and a symbol package (snupkg) for source-level debugging into CorePush
+- Enable deterministic builds
+- Remove the unused ApnsResponse type (use PushResult for results and ApnsError for error detail)
+- Correct and expand XML documentation across the public API
+
 v5.0.3
 - Ship XML documentation in the package for IntelliSense support
 - Richer package description and expanded tags for better discoverability
@@ -107,6 +120,10 @@ v3.0.0
   <ItemGroup>
     <None Include="..\Icon.png" Pack="true" PackagePath="Icon.png" />
     <None Include="..\README.md" Pack="true" PackagePath="README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

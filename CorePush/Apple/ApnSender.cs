@@ -17,11 +17,44 @@ using CorePush.Serialization;
 namespace CorePush.Apple;
 
 /// <summary>
-/// HTTP2 Apple Push Notification sender
+/// Sends push notifications to Apple devices through the APNs HTTP/2 provider API using
+/// token-based (.p8 / JWT) authentication.
 /// </summary>
 /// <remarks>
-/// This type is thread safe.
+/// <para>
+/// The sender signs a short-lived ES256 JWT from the configured .p8 key and reuses it across
+/// requests, refreshing it automatically as it approaches expiry (APNs provider tokens are valid
+/// for up to 60 minutes). Each instance targets a single environment — development or production —
+/// selected via <see cref="ApnSettings.ServerType"/>.
+/// </para>
+/// <para>
+/// This type is thread safe and is meant to be long-lived: register it as a singleton (for example
+/// with <c>AddHttpClient&lt;IApnSender, ApnSender&gt;()</c>) rather than creating one per notification.
+/// Give it a dedicated <see cref="HttpClient"/>, since the constructor sets the client's
+/// <see cref="HttpClient.BaseAddress"/>.
+/// </para>
 /// </remarks>
+/// <example>
+/// <code>
+/// var settings = new ApnSettings
+/// {
+///     AppBundleIdentifier = "com.example.app",
+///     P8PrivateKey = "MIGTAgEA...",   // base64 body of the .p8 key
+///     P8PrivateKeyId = "ABC123DEFG",  // 10-char key ID
+///     TeamId = "DEF123GHIJ",          // 10-char team ID
+///     ServerType = ApnServerType.Production
+/// };
+///
+/// var apn = new ApnSender(settings, httpClient);
+/// var payload = new { aps = new { alert = new { title = "Hi", body = "Hello" } } };
+///
+/// var result = await apn.SendAsync(payload, deviceToken);
+/// if (!result.IsSuccessStatusCode)
+/// {
+///     Console.WriteLine(result.Error); // e.g. ApnsErrorReasons.BadDeviceToken
+/// }
+/// </code>
+/// </example>
 public class ApnSender : IApnSender
 {
     private static readonly ConcurrentDictionary<string, Tuple<string, DateTime>> tokens = new();
@@ -43,16 +76,18 @@ public class ApnSender : IApnSender
     /// </summary>
     /// <param name="settings">Apple Push Notification settings (team ID, key, bundle ID, etc.).</param>
     /// <param name="http">A <see cref="HttpClient"/> dedicated to this <see cref="ApnSender"/>. Do not use a shared <see cref="HttpClient"/> instance, since its instance-level state may be modified. However, its <see cref="HttpClientHandler"/> can be shared.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> or <paramref name="http"/> is null.</exception>
     public ApnSender(ApnSettings settings, HttpClient http) : this(settings, http, new DefaultCorePushJsonSerializer())
     {
     }
 
     /// <summary>
-    /// Apple push notification sender constructor
+    /// Creates a new Apple Push Notification sender with a custom JSON serializer.
     /// </summary>
-    /// <param name="settings">Apple Push Notification settings</param>
-    /// <param name="http">HTTP client instance</param>
-    /// <param name="serializer">JSON serializer</param>
+    /// <param name="settings">Apple Push Notification settings (team ID, key, bundle ID, etc.).</param>
+    /// <param name="http">A <see cref="HttpClient"/> dedicated to this <see cref="ApnSender"/>. Do not use a shared <see cref="HttpClient"/> instance, since its instance-level state may be modified. However, its <see cref="HttpClientHandler"/> can be shared.</param>
+    /// <param name="serializer">The JSON serializer used to serialize notification payloads and deserialize APNs error responses.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/>, <paramref name="http"/>, or <paramref name="serializer"/> is null.</exception>
     public ApnSender(ApnSettings settings, HttpClient http, IJsonSerializer serializer)
     {
         this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -65,13 +100,17 @@ public class ApnSender : IApnSender
         }
     }
 
-    /// <summary>
-    /// Serialize and send notification to APN. Please see how your message should be formatted here:
-    /// https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CreatingtheNotificationPayload.html#//apple_ref/doc/uid/TP40008194-CH10-SW1
-    /// !IMPORTANT: If you send many messages at once, make sure to retry those calls. Apple typically doesn't like
-    /// to receive too many requests and may occasionally respond with HTTP 429. Just try/catch this call and retry as needed.
-    /// </summary>
-    /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
+    /// <inheritdoc />
+    /// <remarks>
+    /// See the Apple payload reference:
+    /// <see href="https://developer.apple.com/documentation/usernotifications/generating-a-remote-notification">Generating a remote notification</see>.
+    /// <para>
+    /// This method does not throw for HTTP error responses; inspect the returned <see cref="PushResult"/> instead.
+    /// If you send many notifications at once, APNs may reply with HTTP 429
+    /// (<see cref="ApnsErrorReasons.TooManyRequests"/>) — check the result and retry with back-off as needed.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="HttpRequestException">Thrown only on a network or transport-level failure, not for HTTP error status codes.</exception>
     public async Task<PushResult> SendAsync(
         object notification,
         string deviceToken,

@@ -3,8 +3,15 @@ using System.Linq;
 
 namespace CorePush.Utils;
 
+/// <summary>
+/// Internal helpers for preparing key material and JWT timestamps.
+/// </summary>
 internal static class CryptoHelper
 {
+    /// <summary>
+    /// Strips the PEM header/footer lines from a base64 private key, returning the raw base64 body.
+    /// Returns the input unchanged when it is null, empty, or already header-free.
+    /// </summary>
     public static string CleanP8Key(string p8Key)
     {
         // If we have an empty p8Key, then don't bother doing any tasks.
@@ -30,6 +37,9 @@ internal static class CryptoHelper
         return result;
     }
         
+    /// <summary>
+    /// Returns the current UTC time as a Unix timestamp (whole seconds since 1970-01-01), used for JWT <c>iat</c>/<c>exp</c> claims.
+    /// </summary>
     public static long GetEpochTimestamp()
     {
         return DateTimeOffset.UtcNow.ToUnixTimeSeconds();

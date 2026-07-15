@@ -1,23 +1,8 @@
 namespace CorePush.Apple;
 
 /// <summary>
-/// Represents the response from the Apple Push Notification service.
-/// </summary>
-public class ApnsResponse
-{
-    /// <summary>
-    /// Indicates whether the push notification was accepted by APNs.
-    /// </summary>
-    public bool IsSuccess { get; set;  }
-
-    /// <summary>
-    /// Error details returned by APNs when the notification was rejected. Null on success.
-    /// </summary>
-    public ApnsError Error { get; set; }
-}
-
-/// <summary>
 /// Error information returned by APNs when a push notification is rejected.
+/// Deserialized from the APNs response body; the reason is also surfaced as <see cref="CorePush.Models.PushResult.Error"/>.
 /// </summary>
 public class ApnsError
 {
