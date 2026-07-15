@@ -3,28 +3,35 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <Title>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Title>
-    <PackageDescription>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</PackageDescription>
-    <Description>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Description>
-    <Summary>Server Side library for sending ✅Web, ✅Android and ✅iOS Push Notifications</Summary>
+    <Title>CorePush — iOS, Android and Web Push Notifications for .NET</Title>
+    <Description>CorePush is a lightweight, dependency-free .NET library for sending server-side push notifications to iOS, Android and Web. It supports the Apple Push Notification service (APNs) over HTTP/2 with token-based (.p8 / JWT) authentication, and Firebase Cloud Messaging (FCM) HTTP v1 API for Android and Web. Built on the native .NET cryptography stack (no BouncyCastle), it ships thread-safe senders, works with IHttpClientFactory and dependency injection, and lets you plug in a custom JSON serializer.</Description>
+    <Summary>Lightweight, dependency-free .NET library for iOS (APNs HTTP/2 + JWT), Android and Web (Firebase FCM HTTP v1) push notifications.</Summary>
     <Authors>andrei-m-code</Authors>
+    <Company>andrei-m-code</Company>
+    <Copyright>Copyright © Andrei M</Copyright>
 
-    <AssemblyVersion>5.0.2</AssemblyVersion>
-    <FileVersion>5.0.2</FileVersion>
-    <Version>5.0.2</Version>
+    <AssemblyVersion>5.0.3</AssemblyVersion>
+    <FileVersion>5.0.3</FileVersion>
+    <Version>5.0.3</Version>
     
-    <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/andrei-m-code/net-core-push-notifications</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/andrei-m-code/net-core-push-notifications</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     
     <PackageId>CorePush</PackageId>
     <PackageIcon>Icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>push-notifications android-push-notifications ios-push-notifications web-push web-push-notifications apn fcm firebase</PackageTags>
+    <PackageTags>push-notifications;apn;apns;fcm;firebase;gcm;ios;android;web-push;web-push-notifications;android-push-notifications;ios-push-notifications;notifications;messaging;dotnet;aspnetcore;http2;jwt;mobile</PackageTags>
 
     <PackageReleaseNotes>
+v5.0.3
+- Ship XML documentation in the package for IntelliSense support
+- Richer package description and expanded tags for better discoverability
+- Point repository/project URLs at the canonical GitHub repo
+
 v5.0.2
 - Fix potential Int32 overflow (Year 2038) in JWT timestamp generation for APN and Firebase
 - Minor cleanup of APN JWT header generation
