@@ -19,9 +19,9 @@
     <Company>andrei-m-code</Company>
     <Copyright>Copyright © Andrei M</Copyright>
 
-    <AssemblyVersion>5.0.5</AssemblyVersion>
-    <FileVersion>5.0.5</FileVersion>
-    <Version>5.0.5</Version>
+    <AssemblyVersion>5.0.6</AssemblyVersion>
+    <FileVersion>5.0.6</FileVersion>
+    <Version>5.0.6</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/net-core-push-notifications</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/net-core-push-notifications</RepositoryUrl>
@@ -34,6 +34,9 @@
     <PackageTags>push-notifications;apn;apns;fcm;firebase;gcm;ios;android;web-push;web-push-notifications;android-push-notifications;ios-push-notifications;notifications;messaging;dotnet;aspnetcore;http2;jwt;mobile</PackageTags>
 
     <PackageReleaseNotes>
+v5.0.6
+- Update Microsoft.SourceLink.GitHub to 10.0.403 (build-time only, no runtime dependency)
+
 v5.0.5
 - Update Microsoft.SourceLink.GitHub to 10.0.402 (build-time only, no runtime dependency)
 
@@ -126,7 +129,7 @@ v3.0.0
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
