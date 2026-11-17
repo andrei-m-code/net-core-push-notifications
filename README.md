@@ -13,13 +13,20 @@ Both `ApnSender` and `FirebaseSender` are thread safe.
 
 # Installation - NuGet
 
-| Package Version | .NET Version |
-|---|---|
-| v5.0.0+ | .NET 10 |
-| v4.4.0 | .NET 9 |
-| v4.3.0 | .NET 8 |
+Each major version of CorePush targets one .NET version. Pick the row that matches your app's target framework.
 
-For earlier versions please use v3.1.1 of the library as it targets netstandard2.0, though please note, it uses the legacy FCM send API.
+| CorePush | .NET | Target framework |
+|---|---|---|
+| **6.x** | **.NET 11** | `net11.0` |
+| 5.x | .NET 10 | `net10.0` |
+| 4.4.x | .NET 9 | `net9.0` |
+| 4.2.x to 4.3.x | .NET 8 | `net8.0` |
+| 4.0.x to 4.1.x | .NET 7 | `net7.0` |
+| 3.x | .NET Standard 2.0 | `netstandard2.0` |
+| 2.x | .NET Standard 2.0 / 2.1 | `netstandard2.0`, `netstandard2.1` |
+| 1.x | .NET Core 2.0 | `netcoreapp2.0` |
+
+Older versions stay on NuGet but get no further updates. For anything older than .NET 7 use v3.1.1, which targets netstandard2.0; note that it uses the legacy FCM send API.
 
 The easiest way to get started with CorePush is to use [NuGet](https://www.nuget.org/packages/CorePush) package.
 
@@ -236,6 +243,10 @@ Pass your implementation to the sender constructor:
 var apn = new ApnSender(settings, httpClient, myCustomSerializer);
 var fcm = new FirebaseSender(firebaseSettingsJson, httpClient, myCustomSerializer);
 ```
+
+# Migrating from v5 to v6
+
+v6.0.0 targets .NET 11. The public API is unchanged, so moving your app to `net11.0` and updating the package is all it takes. Apps on .NET 10 stay on v5.
 
 # Migrating from v4 to v5
 
