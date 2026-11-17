@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -19,9 +19,9 @@
     <Company>andrei-m-code</Company>
     <Copyright>Copyright © Andrei M</Copyright>
 
-    <AssemblyVersion>5.0.6</AssemblyVersion>
-    <FileVersion>5.0.6</FileVersion>
-    <Version>5.0.6</Version>
+    <AssemblyVersion>6.0.0</AssemblyVersion>
+    <FileVersion>6.0.0</FileVersion>
+    <Version>6.0.0</Version>
     
     <PackageProjectUrl>https://github.com/andrei-m-code/net-core-push-notifications</PackageProjectUrl>
     <RepositoryUrl>https://github.com/andrei-m-code/net-core-push-notifications</RepositoryUrl>
@@ -34,6 +34,10 @@
     <PackageTags>push-notifications;apn;apns;fcm;firebase;gcm;ios;android;web-push;web-push-notifications;android-push-notifications;ios-push-notifications;notifications;messaging;dotnet;aspnetcore;http2;jwt;mobile</PackageTags>
 
     <PackageReleaseNotes>
+v6.0.0
+- Target .NET 11 (net11.0); no API changes
+- Update Microsoft.SourceLink.GitHub to 11.0.100 (build-time only, no runtime dependency)
+
 v5.0.6
 - Update Microsoft.SourceLink.GitHub to 10.0.403 (build-time only, no runtime dependency)
 
@@ -129,7 +133,7 @@ v3.0.0
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
